@@ -1,19 +1,22 @@
 package de.fruxz.sdk
 
-import org.bukkit.plugin.java.JavaPlugin
+import de.fruxz.sdk.kernel.FruxzPlugin
 
-class Main : JavaPlugin() {
+class Main : FruxzPlugin() {
 
-    override fun onLoad() {
-        super.onLoad()
+    override val pluginName = "FruxzSDK"
+
+    override fun preBootProcess() {
+        TODO("Not yet implemented")
     }
 
-    override fun onEnable() {
-        super.onEnable()
+    override fun bootProcess() {
+        TODO("Not yet implemented")
     }
 
-    override fun onDisable() {
-        super.onDisable()
+    override fun shutdownProcess() {
+        TODO("Not yet implemented")
     }
+
 
 }
