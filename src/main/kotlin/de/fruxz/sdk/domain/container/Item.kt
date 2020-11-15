@@ -16,6 +16,15 @@ class Item : Cloneable, ConfigurationSerializable {
     var lore: ItemLore
     var modifications: ArrayList<EnchantmentData>
 
+    constructor() {
+        material = Material.AIR
+        label = material.name
+        size = 1
+        damage = 0
+        lore = ItemLore()
+        modifications = ArrayList()
+    }
+
     constructor(material: Material) {
         this.material = material
         label = material.name
