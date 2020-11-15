@@ -1,10 +1,12 @@
 package de.fruxz.sdk.domain.container
 
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
+import org.bukkit.inventory.meta.ItemMeta
 import org.jetbrains.annotations.NotNull
 
 class Item : Cloneable, ConfigurationSerializable {
@@ -63,14 +65,21 @@ class Item : Cloneable, ConfigurationSerializable {
 
     fun buildLegacy(): ItemStack {
         val itemStack = ItemStack(material, size, damage.toShort())
-        val itemMeta = itemStack.itemMeta
 
-        itemMeta.setDisplayName(label)
-        itemMeta.lore = lore.content
+        itemStack.itemMeta = buildMeta()
 
         itemStack.addEnchantments(enchantmentsDataToLegacy(modifications))
 
         return itemStack
+    }
+
+    fun buildMeta(): ItemMeta {
+        val itemMeta = Bukkit.getItemFactory().getItemMeta(material)
+
+        itemMeta.setDisplayName(label)
+        itemMeta.lore = lore.content
+
+        return itemMeta
     }
 
     @NotNull
