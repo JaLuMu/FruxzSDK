@@ -9,12 +9,12 @@ import org.jetbrains.annotations.NotNull
 
 class Item : Cloneable, ConfigurationSerializable {
 
-    val material: Material
-    val size: Int
-    val damage: Int
-    val label: String
-    val lore: ItemLore
-    val modifications: ArrayList<EnchantmentData>
+    var material: Material
+    var size: Int
+    var damage: Int
+    var label: String
+    var lore: ItemLore
+    var modifications: ArrayList<EnchantmentData>
 
     constructor(material: Material) {
         this.material = material
