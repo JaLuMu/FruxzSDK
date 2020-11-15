@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'de.fruxz.sdk'
-version = '0.0'
+version = '0.1'
 
 repositories {
     mavenCentral()
@@ -33,7 +33,11 @@ publishing {
     }
     publications {
         gpr(MavenPublication) {
+
+            artifactId "fruxzsdk"
+
             from(components.java)
+            artifacts { kotlinSourcesJar }
         }
     }
 }
