@@ -1,5 +1,6 @@
 package de.fruxz.sdk.kernel
 
+import de.fruxz.sdk.domain.PluginDesign
 import org.bukkit.command.CommandExecutor
 import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
@@ -12,6 +13,9 @@ import org.jetbrains.annotations.NotNull
  * legacy systems easier and smarter
  */
 abstract class FruxzPlugin : JavaPlugin() {
+
+    @get:NotNull
+    abstract val pluginDesign: PluginDesign
 
     /**
      * This string represents the plugin name
@@ -36,8 +40,26 @@ abstract class FruxzPlugin : JavaPlugin() {
      * add [name], if [name] is taken from the plugin.yml
      * can be fetched / exists.
      */
+    @Deprecated(message = "With FruxzSDK Bukkit-Commands are deprecated!", level = DeprecationLevel.WARNING, replaceWith = ReplaceWith("addCommand(command)"))
     fun addCommand(name: String, executor: CommandExecutor) {
         getCommand(name)?.setExecutor(executor)
+    }
+
+    fun addCommand(@NotNull command: Command) {
+        val bukkitCommand = getCommand(command.commandName)
+
+        if (bukkitCommand != null) {
+
+            bukkitCommand.setExecutor(command)
+            bukkitCommand.tabCompleter = command.buildTabCompleter()
+            bukkitCommand.usage = command.buildCommandUsage()
+
+            if (command.commandPermissionLevel == Command.CommandPermissionLevel.LEGACY)
+                bukkitCommand.permission = command.requiredCommandPermission
+
+        } else
+            throw IllegalArgumentException("Cannot find Command with name '${command.commandName}' in plugin.yml!")
+
     }
 
     /**
