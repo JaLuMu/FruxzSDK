@@ -89,6 +89,10 @@ class Item : Cloneable, ConfigurationSerializable {
 
     companion object {
 
+        fun create(material: Material = Material.AIR, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList()): Item {
+            return Item(material, label, size, damage, lore, modifications)
+        }
+
         fun legacyEnchantmentsToData(legacy: Map<Enchantment, Int>): List<EnchantmentData> {
             val out = ArrayList<EnchantmentData>()
 
