@@ -7,3 +7,8 @@ authors:
   - Fruxz
 prefix: "> FruxzSDK <"
 website: https://github.com/TheFruxz/FruxzSDK
+commands:
+  test:
+    description: Ein Test-Befehl
+  getError:
+    description: Gibt einen Fehler zurück

@@ -1,19 +1,29 @@
 package de.fruxz.sdk
 
-import org.bukkit.plugin.java.JavaPlugin
+import de.fruxz.sdk.domain.PluginDesign
+import de.fruxz.sdk.domain.display.Transmission
+import de.fruxz.sdk.kernel.FruxzPlugin
+import org.bukkit.Bukkit
 
-class Main : JavaPlugin() {
+class Main : FruxzPlugin() {
 
-    override fun onLoad() {
-        super.onLoad()
+    override val pluginDesign: PluginDesign
+        get() = PluginDesign("§6FruxzSDK §8// ")
+
+    override val pluginName = "FruxzSDK"
+
+    override fun preBootProcess() {
+        TODO("Not yet implemented")
     }
 
-    override fun onEnable() {
-        super.onEnable()
+    override fun bootProcess() {
+
+        Transmission(this, "test").sendMessage(Bukkit.getOnlinePlayers())
+
     }
 
-    override fun onDisable() {
-        super.onDisable()
+    override fun shutdownProcess() {
+        TODO("Not yet implemented")
     }
 
 }
