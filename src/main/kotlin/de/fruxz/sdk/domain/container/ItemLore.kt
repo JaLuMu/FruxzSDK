@@ -1,8 +1,9 @@
 package de.fruxz.sdk.domain.container
 
 import org.bukkit.ChatColor
+import org.bukkit.configuration.serialization.ConfigurationSerializable
 
-class ItemLore {
+class ItemLore : ConfigurationSerializable {
 
     val content = ArrayList<String>()
 
@@ -42,6 +43,10 @@ class ItemLore {
 
     }
 
+    constructor(map: Map<String, Any>) {
+        content.addAll(map["content"] as Collection<String>)
+    }
+
     fun add(content: String, index: Int = this.content.size) {
         this.content.add(index = index, element = content)
     }
@@ -65,5 +70,9 @@ class ItemLore {
     fun clear() {
         content.clear()
     }
+
+    override fun serialize() = mapOf(
+        "content" to content
+    )
 
 }

@@ -6,9 +6,6 @@ class ListUtils {
         val out = ArrayList<O>()
 
         input.forEach { out.add(process(it)) }
-        convert(arrayOf(1, 2, 3)) {
-            it.toString()
-        }
 
         return out
     }
