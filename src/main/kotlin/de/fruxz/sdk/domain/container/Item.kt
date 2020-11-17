@@ -1,6 +1,7 @@
 package de.fruxz.sdk.domain.container
 
 import org.bukkit.Bukkit
+import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.enchantments.Enchantment
@@ -20,7 +21,7 @@ class Item : Cloneable, ConfigurationSerializable {
 
     constructor() {
         material = Material.AIR
-        label = material.name
+        label = ChatColor.WHITE.toString() + material.name
         size = 1
         damage = 0
         lore = ItemLore()
@@ -29,7 +30,7 @@ class Item : Cloneable, ConfigurationSerializable {
 
     constructor(material: Material) {
         this.material = material
-        label = material.name
+        label = ChatColor.WHITE.toString() + material.name
         size = 1
         damage = 0
         lore = ItemLore()
@@ -37,7 +38,7 @@ class Item : Cloneable, ConfigurationSerializable {
     }
 
     constructor(itemStack: ItemStack) {
-        label = itemStack.itemMeta.displayName
+        label = if (itemStack.itemMeta.hasDisplayName()) itemStack.itemMeta.displayName else ChatColor.WHITE.toString() + itemStack.type.name
         material = itemStack.type
         size = itemStack.amount
         damage = if (itemStack.itemMeta is Damageable) { (itemStack.itemMeta as Damageable).damage } else 0
@@ -82,8 +83,69 @@ class Item : Cloneable, ConfigurationSerializable {
         return itemMeta
     }
 
+    fun isSame(
+        other: Item,
+        ignoreMaterial: Boolean = false,
+        ignoreLabel: Boolean = false,
+        ignoreSize: Boolean = false,
+        ignoreDamage: Boolean = false,
+        ignoreLore: Boolean = false,
+        ignoreModifications: Boolean = false
+
+    ): Boolean {
+        var isOtherItem = false
+
+        if (!ignoreMaterial) {
+            if (this.material != other.material) {
+                isOtherItem = true
+            }
+        }
+
+        if (!ignoreLabel) {
+            if (this.label != other.label) {
+                isOtherItem = true
+            }
+        }
+
+        if (!ignoreSize) {
+            if (this.size != other.size) {
+                isOtherItem = true
+            }
+        }
+
+        if (!ignoreDamage) {
+            if (this.damage != other.damage) {
+                isOtherItem = true
+            }
+        }
+
+        if (!ignoreLore) {
+            if (this.lore.content != other.lore.content) {
+                isOtherItem = true
+            }
+        }
+
+        if (!ignoreModifications) {
+            if (this.modifications != other.modifications) {
+                isOtherItem = true
+            }
+        }
+
+        return !isOtherItem
+    }
+
+    fun isOther(
+        other: Item,
+        ignoreMaterial: Boolean = false,
+        ignoreLabel: Boolean = false,
+        ignoreSize: Boolean = false,
+        ignoreDamage: Boolean = false,
+        ignoreLore: Boolean = false,
+        ignoreModifications: Boolean = false
+    ) = !isSame(other, ignoreMaterial, ignoreLabel, ignoreSize, ignoreDamage, ignoreLore, ignoreModifications)
+
     @NotNull
-    override fun clone(): Item {
+    public override fun clone(): Item {
         return Item(material, label, size, damage, lore, modifications)
     }
 

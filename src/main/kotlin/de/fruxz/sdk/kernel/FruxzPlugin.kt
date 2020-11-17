@@ -2,9 +2,12 @@ package de.fruxz.sdk.kernel
 
 import de.fruxz.sdk.domain.PluginDesign
 import org.bukkit.command.CommandExecutor
+import org.bukkit.configuration.serialization.ConfigurationSerializable
+import org.bukkit.configuration.serialization.ConfigurationSerialization
 import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
 import org.jetbrains.annotations.NotNull
+import kotlin.reflect.KClass
 
 /**
  * This class is like a [JavaPlugin] from the basic system,
@@ -68,6 +71,20 @@ abstract class FruxzPlugin : JavaPlugin() {
      */
     fun addHandler(listener: Listener) {
         localPluginManager.registerEvents(listener, this)
+    }
+
+    /**
+     * Registering an ConfigurationSerializable
+     */
+    fun registerSerializable(clazz: Class<out ConfigurationSerializable>) {
+        ConfigurationSerialization.registerClass(clazz)
+    }
+
+    /**
+     * Registering an ConfigurationSerializable
+     */
+    fun registerSerializable(clazz: KClass<out ConfigurationSerializable>) {
+        ConfigurationSerialization.registerClass(clazz.java)
     }
 
     /**

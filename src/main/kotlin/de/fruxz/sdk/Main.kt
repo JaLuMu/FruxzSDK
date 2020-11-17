@@ -1,9 +1,13 @@
 package de.fruxz.sdk
 
 import de.fruxz.sdk.domain.PluginDesign
+import de.fruxz.sdk.domain.User
+import de.fruxz.sdk.domain.container.*
 import de.fruxz.sdk.domain.display.Transmission
 import de.fruxz.sdk.kernel.FruxzPlugin
 import org.bukkit.Bukkit
+import org.bukkit.Material
+import org.bukkit.configuration.serialization.ConfigurationSerialization
 
 class Main : FruxzPlugin() {
 
@@ -13,17 +17,16 @@ class Main : FruxzPlugin() {
     override val pluginName = "FruxzSDK"
 
     override fun preBootProcess() {
-        TODO("Not yet implemented")
+
+        registerSerializable(ItemLore::class)
+        registerSerializable(Item::class)
+        registerSerializable(InventoryUI::class)
+        registerSerializable(EnchantmentData::class)
+
     }
 
-    override fun bootProcess() {
+    override fun bootProcess() { }
 
-        Transmission(this, "test").sendMessage(Bukkit.getOnlinePlayers())
-
-    }
-
-    override fun shutdownProcess() {
-        TODO("Not yet implemented")
-    }
+    override fun shutdownProcess() { }
 
 }
