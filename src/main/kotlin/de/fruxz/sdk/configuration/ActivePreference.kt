@@ -2,7 +2,7 @@ package de.fruxz.sdk.configuration
 
 import org.jetbrains.annotations.NotNull
 
-class ActivePreference<T>(
+open class ActivePreference<T>(
     val activeFile: ActiveFileController,
     val path: String,
     val default: T,
