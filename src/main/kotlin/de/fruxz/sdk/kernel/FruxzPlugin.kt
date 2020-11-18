@@ -1,12 +1,15 @@
 package de.fruxz.sdk.kernel
 
 import de.fruxz.sdk.domain.PluginDesign
+import de.fruxz.sdk.domain.service.SystemService
+import de.fruxz.sdk.util.BoolUtils
 import org.bukkit.command.CommandExecutor
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.configuration.serialization.ConfigurationSerialization
 import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
 import org.jetbrains.annotations.NotNull
+import java.util.logging.Level
 import kotlin.reflect.KClass
 
 /**
@@ -85,6 +88,14 @@ abstract class FruxzPlugin : JavaPlugin() {
      */
     fun registerSerializable(clazz: KClass<out ConfigurationSerializable>) {
         ConfigurationSerialization.registerClass(clazz.java)
+    }
+
+    /**
+     * Starting an service with its parameters
+     */
+    fun bootService(service: SystemService) {
+        server.logger.log(Level.INFO, "Plugin '${this.name}'//($pluginName) is booting service '${service::class.simpleName}'//(${service::class.qualifiedName}) [${BoolUtils().boolSelector(service.provider.isAsync, "Async", "Sync")}]")
+        service.boot()
     }
 
     /**
