@@ -4,6 +4,9 @@ import de.fruxz.sdk.domain.PluginDesign
 import de.fruxz.sdk.domain.container.*
 import de.fruxz.sdk.kernel.FruxzPlugin
 
+/**
+ * This class helps to build the framework-system on the minecraft-server
+ */
 class Main : FruxzPlugin() {
 
     companion object {
