@@ -1,5 +1,8 @@
 package de.fruxz.sdk.configuration
 
+/**
+ * This helps to easily write&save string preferences, which may contain color & color-codes
+ */
 class ActivePreferenceString(
     activeFile: ActiveFileController,
     path: String,
