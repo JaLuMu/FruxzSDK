@@ -4,8 +4,19 @@ import de.fruxz.sdk.kernel.FruxzPlugin
 import org.bukkit.Bukkit
 import org.bukkit.scheduler.BukkitRunnable
 
+/**
+ * This class helps to build/manage and structure tasks, which will run
+ * for itself and with its own controller-consoles
+ */
 class RestrictedTaskSingletonBuilder(val plugin: FruxzPlugin) {
 
+    /**
+     * Generates an task
+     * @param isAsync Is the task async or not?
+     * @param delay The time between code an first execution
+     * @param duration The time between one execution and the next execution
+     * @param function The code, which will run at the perfect time
+     */
     fun task(
         isAsync: Boolean = false,
         delay: Long? = null,
@@ -87,12 +98,24 @@ class RestrictedTaskSingletonBuilder(val plugin: FruxzPlugin) {
         }
     }
 
+    /**
+     * Generates an sync task
+     * @param delay The time between code an first execution
+     * @param duration The time between one execution and the next execution
+     * @param function The code, which will run at the perfect time
+     */
     fun sync(
         delay: Long? = null,
         duration: Long? = null,
         function: (RemoteBukkitTaskController) -> Unit
     ) = task(isAsync = false, delay = delay, duration = duration, function = function)
 
+    /**
+     * Generates an async task
+     * @param delay The time between code an first execution
+     * @param duration The time between one execution and the next execution
+     * @param function The code, which will run at the perfect time
+     */
     fun async(
         delay: Long? = null,
         duration: Long? = null,
