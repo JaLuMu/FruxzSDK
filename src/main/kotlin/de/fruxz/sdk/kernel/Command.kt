@@ -175,6 +175,8 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
         commandEngineLogger.log(Level.WARNING, "--- [  END $errorID  ] ------------------------")
 
         addErrorToCache(errorID, exception.stackTraceToString())
+
+        sendFailMessage(sender) // send user friendly error message
     }
 
     enum class CommandResult {
