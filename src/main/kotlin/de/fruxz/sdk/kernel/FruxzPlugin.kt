@@ -84,7 +84,12 @@ abstract class FruxzPlugin : JavaPlugin() {
      * Paper, Spigot and FruxzSDK events are added.
      */
     fun addHandler(listener: Listener) {
-        localPluginManager.registerEvents(listener, this)
+        try {
+            localPluginManager.registerEvents(listener, this)
+        } catch (e: Exception) {
+            logger.log(Level.WARNING, "Error during adding listener")
+            e.printStackTrace()
+        }
     }
 
     /**
