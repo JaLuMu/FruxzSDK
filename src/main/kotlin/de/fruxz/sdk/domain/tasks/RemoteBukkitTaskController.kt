@@ -1,5 +1,9 @@
 package de.fruxz.sdk.domain.tasks
 
+/**
+ * This interface helps to create an consistent controller
+ * for tasks for [Tasky]
+ */
 interface RemoteBukkitTaskController {
 
     fun shutdown()
