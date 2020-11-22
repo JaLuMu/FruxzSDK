@@ -21,7 +21,7 @@ import kotlin.reflect.KClass
 abstract class FruxzPlugin : JavaPlugin() {
 
     @get:NotNull
-    abstract val pluginDesign: PluginDesign
+    abstract var pluginDesign: PluginDesign
 
     /**
      * This string represents the plugin name
