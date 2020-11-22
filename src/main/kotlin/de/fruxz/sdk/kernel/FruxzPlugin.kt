@@ -48,7 +48,12 @@ abstract class FruxzPlugin : JavaPlugin() {
      */
     @Deprecated(message = "With FruxzSDK Bukkit-Commands are deprecated!", level = DeprecationLevel.WARNING, replaceWith = ReplaceWith("addCommand(command)"))
     fun addCommand(name: String, executor: CommandExecutor) {
-        getCommand(name)?.setExecutor(executor)
+        try {
+            getCommand(name)?.setExecutor(executor)
+            logger.log(Level.WARNING, "Error during adding legacy-command")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     fun addCommand(@NotNull command: Command) {
