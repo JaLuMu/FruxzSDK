@@ -52,19 +52,25 @@ abstract class FruxzPlugin : JavaPlugin() {
     }
 
     fun addCommand(@NotNull command: Command) {
-        val bukkitCommand = getCommand(command.commandName)
 
-        if (bukkitCommand != null) {
+        try {
+            val bukkitCommand = getCommand(command.commandName)
 
-            bukkitCommand.setExecutor(command)
-            bukkitCommand.tabCompleter = command.buildTabCompleter()
-            bukkitCommand.usage = command.buildCommandUsage()
+            if (bukkitCommand != null) {
 
-            if (command.commandPermissionLevel == Command.CommandPermissionLevel.LEGACY)
-                bukkitCommand.permission = command.requiredCommandPermission
+                bukkitCommand.setExecutor(command)
+                bukkitCommand.tabCompleter = command.buildTabCompleter()
+                bukkitCommand.usage = command.buildCommandUsage()
 
-        } else
-            throw IllegalArgumentException("Cannot find Command with name '${command.commandName}' in plugin.yml!")
+                if (command.commandPermissionLevel == Command.CommandPermissionLevel.LEGACY)
+                    bukkitCommand.permission = command.requiredCommandPermission
+
+            } else
+                throw IllegalArgumentException("Cannot find Command with name '${command.commandName}' in plugin.yml!")
+        } catch (e: Exception) {
+            logger.log(Level.WARNING, "Error during adding command")
+            e.printStackTrace()
+        }
 
     }
 
