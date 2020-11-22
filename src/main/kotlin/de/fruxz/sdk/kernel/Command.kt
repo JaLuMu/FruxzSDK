@@ -152,6 +152,11 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
 
     fun sendClientTypeMessage(sender: CommandSender) = sendClientTypeMessage(sender = sender, requiredClient = ::requiredClientType.get())
 
+    fun sendFailMessage(sender: CommandSender) {
+        Transmission(plugin = plugin, message = plugin.pluginDesign.useErrorMessage
+            ?: "§c§lOOPS§c,an error has occurred! Please report this to a technical engineer, we are very sorry!").sendMessage(sender)
+    }
+
     private fun addErrorToCache(id: String, stackTrace: String) {
         commandErrors.add(Triple(Calendar.getInstance(), id, stackTrace))
 
@@ -170,6 +175,8 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
         commandEngineLogger.log(Level.WARNING, "--- [  END $errorID  ] ------------------------")
 
         addErrorToCache(errorID, exception.stackTraceToString())
+
+        sendFailMessage(sender) // send user friendly error message
     }
 
     enum class CommandResult {

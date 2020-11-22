@@ -21,7 +21,7 @@ import kotlin.reflect.KClass
 abstract class FruxzPlugin : JavaPlugin() {
 
     @get:NotNull
-    abstract val pluginDesign: PluginDesign
+    abstract var pluginDesign: PluginDesign
 
     /**
      * This string represents the plugin name
@@ -48,23 +48,34 @@ abstract class FruxzPlugin : JavaPlugin() {
      */
     @Deprecated(message = "With FruxzSDK Bukkit-Commands are deprecated!", level = DeprecationLevel.WARNING, replaceWith = ReplaceWith("addCommand(command)"))
     fun addCommand(name: String, executor: CommandExecutor) {
-        getCommand(name)?.setExecutor(executor)
+        try {
+            getCommand(name)?.setExecutor(executor)
+            logger.log(Level.WARNING, "Error during adding legacy-command")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     fun addCommand(@NotNull command: Command) {
-        val bukkitCommand = getCommand(command.commandName)
 
-        if (bukkitCommand != null) {
+        try {
+            val bukkitCommand = getCommand(command.commandName)
 
-            bukkitCommand.setExecutor(command)
-            bukkitCommand.tabCompleter = command.buildTabCompleter()
-            bukkitCommand.usage = command.buildCommandUsage()
+            if (bukkitCommand != null) {
 
-            if (command.commandPermissionLevel == Command.CommandPermissionLevel.LEGACY)
-                bukkitCommand.permission = command.requiredCommandPermission
+                bukkitCommand.setExecutor(command)
+                bukkitCommand.tabCompleter = command.buildTabCompleter()
+                bukkitCommand.usage = command.buildCommandUsage()
 
-        } else
-            throw IllegalArgumentException("Cannot find Command with name '${command.commandName}' in plugin.yml!")
+                if (command.commandPermissionLevel == Command.CommandPermissionLevel.LEGACY)
+                    bukkitCommand.permission = command.requiredCommandPermission
+
+            } else
+                throw IllegalArgumentException("Cannot find Command with name '${command.commandName}' in plugin.yml!")
+        } catch (e: Exception) {
+            logger.log(Level.WARNING, "Error during adding command")
+            e.printStackTrace()
+        }
 
     }
 
@@ -73,7 +84,12 @@ abstract class FruxzPlugin : JavaPlugin() {
      * Paper, Spigot and FruxzSDK events are added.
      */
     fun addHandler(listener: Listener) {
-        localPluginManager.registerEvents(listener, this)
+        try {
+            localPluginManager.registerEvents(listener, this)
+        } catch (e: Exception) {
+            logger.log(Level.WARNING, "Error during adding listener")
+            e.printStackTrace()
+        }
     }
 
     /**

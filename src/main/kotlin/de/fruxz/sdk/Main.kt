@@ -13,8 +13,7 @@ class Main : FruxzPlugin() {
         lateinit var instance: Main
     }
 
-    override val pluginDesign: PluginDesign
-        get() = PluginDesign("§6FruxzSDK §8// ")
+    override var pluginDesign = PluginDesign("§6FruxzSDK §8// ")
 
     override val pluginName = "FruxzSDK"
 
@@ -24,6 +23,7 @@ class Main : FruxzPlugin() {
         registerSerializable(Item::class)
         registerSerializable(InventoryUI::class)
         registerSerializable(EnchantmentData::class)
+        registerSerializable(PluginDesign::class)
 
     }
 
