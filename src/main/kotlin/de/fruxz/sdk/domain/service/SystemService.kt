@@ -1,5 +1,6 @@
 package de.fruxz.sdk.domain.service
 
+import de.fruxz.sdk.domain.service.provider.SystemServiceExecutionProvider
 import org.bukkit.scheduler.BukkitRunnable
 
 interface SystemService {

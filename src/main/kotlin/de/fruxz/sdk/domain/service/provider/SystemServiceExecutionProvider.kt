@@ -1,4 +1,4 @@
-package de.fruxz.sdk.domain.service
+package de.fruxz.sdk.domain.service.provider
 
 import org.bukkit.scheduler.BukkitRunnable
 
