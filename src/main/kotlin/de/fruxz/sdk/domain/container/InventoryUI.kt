@@ -7,6 +7,7 @@ import org.bukkit.Material
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
+import org.bukkit.inventory.InventoryView
 
 class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
 
@@ -126,6 +127,9 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
 
         return inventory
     }
+
+    fun isSameInventory(view: InventoryView) =
+        view.topInventory.size == size.size && view.title == label
 
     override fun serialize() = mapOf(
         "label" to label,
