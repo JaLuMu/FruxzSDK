@@ -1,5 +1,8 @@
 package de.fruxz.sdk.domain.container
 
+import net.md_5.bungee.api.chat.HoverEvent
+import net.md_5.bungee.api.chat.ItemTag
+import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
@@ -143,6 +146,16 @@ class Item : Cloneable, ConfigurationSerializable {
         ignoreLore: Boolean = false,
         ignoreModifications: Boolean = false
     ) = !isSame(other, ignoreMaterial, ignoreLabel, ignoreSize, ignoreDamage, ignoreLore, ignoreModifications)
+
+    @NotNull
+    fun buildDisplayObject(bracketsColor: ChatColor = ChatColor.GRAY, nameColor: ChatColor? = null): TextComponent {
+        val out = TextComponent("$bracketsColor[${nameColor?.toString() ?: ""}$label$bracketsColor]")
+        val legacy = buildLegacy()
+
+        out.hoverEvent = HoverEvent(HoverEvent.Action.SHOW_ITEM, net.md_5.bungee.api.chat.hover.content.Item(legacy.type.name, legacy.amount, null))
+
+        return out
+    }
 
     @NotNull
     public override fun clone(): Item {
