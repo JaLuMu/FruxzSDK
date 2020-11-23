@@ -75,4 +75,19 @@ class Transmission {
             throw NullPointerException("The plugin from constructor or specified server must be non-null!")
     }
 
+    fun broadcastMessage(server: Server? = Bukkit.getServer(), permission: String) {
+        if (plugin != null || server != null) {
+            (plugin?.server ?: server)!!.broadcast(*transmissionContent.create())
+            sendMessage((plugin?.server ?: server)!!.onlinePlayers.filter { it.hasPermission(permission) })
+        } else
+            throw NullPointerException("The plugin from constructor or specified server must be non-null!")
+    }
+
+    fun broadcastActionBar(server: Server? = Bukkit.getServer(), permission: String) {
+        if (plugin != null || server != null) {
+            sendActionBar((plugin?.server ?: server)!!.onlinePlayers.filter { it.hasPermission(permission) })
+        } else
+            throw NullPointerException("The plugin from constructor or specified server must be non-null!")
+    }
+
 }
