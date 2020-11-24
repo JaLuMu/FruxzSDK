@@ -24,6 +24,7 @@ class Main : FruxzPlugin() {
         registerSerializable(InventoryUI::class)
         registerSerializable(EnchantmentData::class)
         registerSerializable(PluginDesign::class)
+        registerSerializable(ItemBundle::class)
 
     }
 

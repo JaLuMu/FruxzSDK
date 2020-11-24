@@ -1,5 +1,6 @@
 package de.fruxz.sdk.domain.container
 
+import de.fruxz.sdk.util.ListUtils
 import net.md_5.bungee.api.chat.HoverEvent
 import net.md_5.bungee.api.chat.ItemTag
 import net.md_5.bungee.api.chat.TextComponent
@@ -85,6 +86,27 @@ class Item : Cloneable, ConfigurationSerializable {
 
         return itemMeta
     }
+
+    /**
+     * Building an new [ItemBundle] with this [Item]-Object an may
+     * additional objects specified in [moreItems]
+     * @param moreItems additional objects in the [ItemBundle]
+     */
+    fun buildBundle(vararg moreItems: Item) = ItemBundle(listOf(this, *moreItems))
+
+    /**
+     * Building an new [ItemBundle] with this [Item]-Object an may
+     * additional objects specified in [moreMaterials]
+     * @param moreMaterials additional objects in the [ItemBundle]
+     */
+    fun buildBundle(vararg moreMaterials: Material) = buildBundle(moreItems = ListUtils().convert(moreMaterials) { Item(it) })
+
+    /**
+     * Building an new [ItemBundle] with this [Item]-Object an may
+     * additional objects specified in [moreStacks]
+     * @param moreStacks additional objects in the [ItemBundle]
+     */
+    fun buildBundle(vararg moreStacks: ItemStack) = buildBundle(moreItems = ListUtils().convert(moreStacks) { Item(it) })
 
     fun isSame(
         other: Item,
