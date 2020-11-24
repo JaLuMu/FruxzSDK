@@ -68,6 +68,10 @@ class Item : Cloneable, ConfigurationSerializable {
         modifications = ArrayList(map["modifications"] as List<EnchantmentData>)
     }
 
+    var activeLore: List<String>
+        get() = lore.content
+        set(value) { lore = ItemLore(value) }
+
     fun buildLegacy(): ItemStack {
         val itemStack = ItemStack(material, size, damage.toShort())
 
