@@ -1,6 +1,7 @@
 package de.fruxz.sdk.domain
 
 import de.fruxz.sdk.domain.container.Item
+import de.fruxz.sdk.domain.container.ItemBundle
 import de.fruxz.sdk.domain.container.UserInterface
 import de.fruxz.sdk.domain.display.Transmission
 import de.fruxz.sdk.util.ListUtils
@@ -39,5 +40,7 @@ class User(val player: Player) {
     fun giveItems(vararg items: Item) {
         player.inventory.addItem(*ListUtils().convert(items) { it.buildLegacy() })
     }
+
+    fun giveItems(bundle: ItemBundle) = bundle.giveItems(this)
 
 }
