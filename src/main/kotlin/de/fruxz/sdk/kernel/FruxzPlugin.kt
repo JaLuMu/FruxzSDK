@@ -40,6 +40,9 @@ abstract class FruxzPlugin : JavaPlugin() {
     @get:NotNull
     protected val localPluginManager = server.pluginManager
 
+    @NotNull
+    fun generatePluginPermission(@NotNull permission: String) = "${this.description.name}.$permission"
+
     /**
      * This method simply adds a legacy command
      * to the server via the [executor] with the name
@@ -68,7 +71,7 @@ abstract class FruxzPlugin : JavaPlugin() {
                 bukkitCommand.usage = command.buildCommandUsage()
 
                 if (command.commandPermissionLevel == Command.CommandPermissionLevel.LEGACY)
-                    bukkitCommand.permission = command.requiredCommandPermission
+                    bukkitCommand.permission = command.requiredCommandPermission?.let { generatePluginPermission(it) }
 
             } else
                 throw IllegalArgumentException("Cannot find Command with name '${command.commandName}' in plugin.yml!")
