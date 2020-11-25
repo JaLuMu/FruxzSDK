@@ -46,11 +46,15 @@ class Transmission {
     constructor(plugin: FruxzPlugin?, content: ActivePreferenceString) {
         transmissionContent.append(plugin?.pluginDesign?.messagePrefix ?: "§7⋙ ")
         transmissionContent.append(content.getMessage())
+
+        this.plugin = plugin
     }
 
     constructor(plugin: FruxzPlugin?, content: ActivePreference<*>?) {
         transmissionContent.append(plugin?.pluginDesign?.messagePrefix ?: "§7⋙ ")
         transmissionContent.append("${content?.getContent()}")
+
+        this.plugin = plugin
     }
 
     fun sendMessage(receiver: CommandSender) {
