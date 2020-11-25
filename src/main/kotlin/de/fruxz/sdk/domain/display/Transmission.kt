@@ -1,5 +1,6 @@
 package de.fruxz.sdk.domain.display
 
+import de.fruxz.sdk.configuration.ActivePreference
 import de.fruxz.sdk.kernel.FruxzPlugin
 import net.md_5.bungee.api.chat.ComponentBuilder
 import org.bukkit.Bukkit
@@ -39,6 +40,11 @@ class Transmission {
         transmissionContent.append("$color")
 
         this.plugin = plugin
+    }
+
+    constructor(plugin: FruxzPlugin?, content: ActivePreference<String>) {
+        transmissionContent.append(plugin?.pluginDesign?.messagePrefix ?: "§7⋙ ")
+        transmissionContent.append(content.getContent())
     }
 
     fun sendMessage(receiver: CommandSender) {
