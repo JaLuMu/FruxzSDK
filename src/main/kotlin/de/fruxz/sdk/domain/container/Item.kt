@@ -2,13 +2,13 @@ package de.fruxz.sdk.domain.container
 
 import de.fruxz.sdk.util.ListUtils
 import net.md_5.bungee.api.chat.HoverEvent
-import net.md_5.bungee.api.chat.ItemTag
 import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.enchantments.Enchantment
+import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
@@ -72,12 +72,18 @@ class Item : Cloneable, ConfigurationSerializable {
         get() = lore.content
         set(value) { lore = ItemLore(value) }
 
-    fun buildLegacy(): ItemStack {
+    fun buildLegacy(forceEnchantments: Boolean = true, hideEnchantments: Boolean = false): ItemStack {
         val itemStack = ItemStack(material, size, damage.toShort())
+        val itemMeta = buildMeta()
 
-        itemStack.itemMeta = buildMeta()
+        enchantmentsDataToLegacy(modifications).forEach { (key, value) ->
+            itemMeta.addEnchant(key, value, forceEnchantments)
+        }
 
-        itemStack.addEnchantments(enchantmentsDataToLegacy(modifications))
+        if (hideEnchantments)
+            itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS)
+
+        itemStack.itemMeta = itemMeta
 
         return itemStack
     }
