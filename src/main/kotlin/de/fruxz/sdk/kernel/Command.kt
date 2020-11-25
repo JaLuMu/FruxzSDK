@@ -157,6 +157,14 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
             ?: "§c§lOOPS§c,an error has occurred! Please report this to a technical engineer, we are very sorry!").sendMessage(sender)
     }
 
+    fun returnAnswer(target: CommandSender, answer: String) = Transmission(plugin, answer).sendMessage(target)
+
+    fun returnAnswer(target: CommandSender, answer: Transmission) = Transmission(plugin, answer.transmissionContent).sendMessage(target)
+
+    fun answer(target: CommandSender, answer: String) = returnAnswer(target, answer)
+
+    fun answer(target: CommandSender, answer: Transmission) = returnAnswer(target, answer)
+
     private fun addErrorToCache(id: String, stackTrace: String) {
         commandErrors.add(Triple(Calendar.getInstance(), id, stackTrace))
 
