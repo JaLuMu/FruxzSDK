@@ -23,6 +23,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
     var label: String
     var lore: ItemLore
     var modifications: ArrayList<EnchantmentData>
+    val flags: ArrayList<ItemFlag>
 
     constructor() {
         material = Material.AIR
@@ -31,6 +32,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         damage = 0
         lore = ItemLore()
         modifications = ArrayList()
+        flags = ArrayList()
     }
 
     constructor(material: Material) {
@@ -40,6 +42,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         damage = 0
         lore = ItemLore()
         modifications = ArrayList()
+        flags = ArrayList()
     }
 
     constructor(itemStack: ItemStack) {
@@ -49,15 +52,17 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         damage = if (itemStack.itemMeta is Damageable) { (itemStack.itemMeta as Damageable).damage } else 0
         lore = ItemLore(itemStack.lore)
         modifications = ArrayList(legacyEnchantmentsToData(itemStack.enchantments))
+        flags = ArrayList(itemStack.itemFlags.toList())
     }
 
-    constructor(material: Material, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList()) {
+    constructor(material: Material, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList(), flags: List<ItemFlag>) {
         this.material = material
         this.size = size
         this.label = label
         this.damage = damage
         this.lore = lore
         this.modifications = ArrayList(modifications)
+        this.flags = ArrayList(flags)
     }
 
     constructor(map: Map<String, Any>) {
@@ -67,6 +72,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         damage = (map["damage"] as Number).toInt()
         lore = map["lore"] as ItemLore
         modifications = ArrayList(map["modifications"] as List<EnchantmentData>)
+        flags = ArrayList(ListUtils().convert(map["flags"] as List<String>) { ItemFlag.valueOf(it) })
     }
 
     var activeLore: List<String>
@@ -84,6 +90,8 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         if (hideEnchantments)
             itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS)
 
+        itemMeta.addItemFlags(*flags.toTypedArray())
+
         itemStack.itemMeta = itemMeta
 
         return itemStack
@@ -94,6 +102,9 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
 
         itemMeta.setDisplayName(label)
         itemMeta.lore = lore.content
+
+        if (!flags.isNullOrEmpty())
+            itemMeta.addItemFlags(*flags.toTypedArray())
 
         return itemMeta
     }
@@ -126,7 +137,8 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         ignoreSize: Boolean = false,
         ignoreDamage: Boolean = false,
         ignoreLore: Boolean = false,
-        ignoreModifications: Boolean = false
+        ignoreModifications: Boolean = false,
+        ignoreFlags: Boolean = false,
 
     ): Boolean {
         var isOtherItem = false
@@ -167,6 +179,12 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
             }
         }
 
+        if (!ignoreFlags) {
+            if (this.flags != other.flags) {
+                isOtherItem = true
+            }
+        }
+
         return !isOtherItem
     }
 
@@ -177,8 +195,9 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         ignoreSize: Boolean = false,
         ignoreDamage: Boolean = false,
         ignoreLore: Boolean = false,
-        ignoreModifications: Boolean = false
-    ) = !isSame(other, ignoreMaterial, ignoreLabel, ignoreSize, ignoreDamage, ignoreLore, ignoreModifications)
+        ignoreModifications: Boolean = false,
+        ignoreFlags: Boolean = false,
+    ) = !isSame(other, ignoreMaterial, ignoreLabel, ignoreSize, ignoreDamage, ignoreLore, ignoreModifications, ignoreFlags)
 
     @NotNull
     fun buildDisplayObject(bracketsColor: ChatColor = ChatColor.GRAY, nameColor: ChatColor? = null): TextComponent {
@@ -190,11 +209,21 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         return out
     }
 
+    fun addItemFlags(vararg flags: ItemFlag) {
+        this.flags.addAll(flags)
+    }
+
+    fun removeItemFlags(vararg flags: ItemFlag) {
+        this.flags.removeAll(flags)
+    }
+
+    fun containFlag(flag: ItemFlag) = flags.contains(flag)
+
     override fun getObjectable() = buildDisplayObject()
 
     @NotNull
     public override fun clone(): Item {
-        return Item(material, label, size, damage, lore, modifications)
+        return Item(material, label, size, damage, lore, modifications, flags)
     }
 
     override fun serialize() = mapOf(
@@ -204,12 +233,13 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         "damage" to damage,
         "lore" to lore,
         "modifications" to modifications,
+        "flags" to ListUtils().convert(flags) { it.name }
     )
 
     companion object {
 
-        fun create(material: Material = Material.AIR, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList()): Item {
-            return Item(material, label, size, damage, lore, modifications)
+        fun create(material: Material = Material.AIR, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList(), flags: List<ItemFlag> = emptyList()): Item {
+            return Item(material, label, size, damage, lore, modifications, flags)
         }
 
         fun legacyEnchantmentsToData(legacy: Map<Enchantment, Int>): List<EnchantmentData> {
