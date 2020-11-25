@@ -43,4 +43,8 @@ class User(val player: Player) {
 
     fun giveItems(bundle: ItemBundle) = bundle.giveItems(this)
 
+    fun setItem(slot: Int, item: Item) {
+        player.inventory.setItem(slot, item.buildLegacy())
+    }
+
 }
