@@ -1,6 +1,7 @@
 package de.fruxz.sdk.domain.display
 
 import de.fruxz.sdk.configuration.ActivePreference
+import de.fruxz.sdk.configuration.ActivePreferenceString
 import de.fruxz.sdk.kernel.FruxzPlugin
 import net.md_5.bungee.api.chat.ComponentBuilder
 import org.bukkit.Bukkit
@@ -42,9 +43,14 @@ class Transmission {
         this.plugin = plugin
     }
 
-    constructor(plugin: FruxzPlugin?, content: ActivePreference<String>) {
+    constructor(plugin: FruxzPlugin?, content: ActivePreferenceString) {
         transmissionContent.append(plugin?.pluginDesign?.messagePrefix ?: "§7⋙ ")
-        transmissionContent.append(content.getContent())
+        transmissionContent.append(content.getMessage())
+    }
+
+    constructor(plugin: FruxzPlugin?, content: ActivePreference<*>?) {
+        transmissionContent.append(plugin?.pluginDesign?.messagePrefix ?: "§7⋙ ")
+        transmissionContent.append("${content?.getContent()}")
     }
 
     fun sendMessage(receiver: CommandSender) {
