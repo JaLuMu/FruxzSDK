@@ -1,5 +1,6 @@
 package de.fruxz.sdk.domain.container
 
+import de.fruxz.sdk.domain.display.TransmissionContentObjectable
 import de.fruxz.sdk.util.ListUtils
 import net.md_5.bungee.api.chat.HoverEvent
 import net.md_5.bungee.api.chat.TextComponent
@@ -14,7 +15,7 @@ import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
 import org.jetbrains.annotations.NotNull
 
-class Item : Cloneable, ConfigurationSerializable {
+class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable {
 
     var material: Material
     var size: Int
@@ -188,6 +189,8 @@ class Item : Cloneable, ConfigurationSerializable {
 
         return out
     }
+
+    override fun getObjectable() = buildDisplayObject()
 
     @NotNull
     public override fun clone(): Item {

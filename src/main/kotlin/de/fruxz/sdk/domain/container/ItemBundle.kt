@@ -1,6 +1,7 @@
 package de.fruxz.sdk.domain.container
 
 import de.fruxz.sdk.domain.User
+import de.fruxz.sdk.domain.display.TransmissionContentObjectable
 import de.fruxz.sdk.util.ListUtils
 import net.md_5.bungee.api.chat.HoverEvent
 import net.md_5.bungee.api.chat.TextComponent
@@ -14,7 +15,7 @@ import org.jetbrains.annotations.NotNull
 /**
  * This class helps to easily manage multiple [Item]s at once
  */
-class ItemBundle : ConfigurationSerializable {
+class ItemBundle : ConfigurationSerializable, TransmissionContentObjectable {
 
     /**
      * The cache of used items
@@ -139,5 +140,7 @@ class ItemBundle : ConfigurationSerializable {
     override fun serialize() = mapOf(
         "items" to items
     )
+
+    override fun getObjectable() = buildDisplayObject()
 
 }
