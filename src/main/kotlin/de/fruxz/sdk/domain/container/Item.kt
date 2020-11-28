@@ -55,7 +55,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         flags = ArrayList(itemStack.itemFlags.toList())
     }
 
-    constructor(material: Material, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList(), flags: List<ItemFlag>) {
+    constructor(material: Material, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList(), flags: List<ItemFlag> = emptyList()) {
         this.material = material
         this.size = size
         this.label = label
