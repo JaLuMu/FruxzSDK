@@ -13,7 +13,8 @@ open class ActivePreference<T>(
     val activeFile: ActiveFileController,
     val path: String,
     val default: T,
-    val useCache: Boolean = false
+    val useCache: Boolean = false,
+    val directInteraction: Boolean = true,
 ) {
 
     companion object {
@@ -55,7 +56,7 @@ open class ActivePreference<T>(
                 e
             } else {
 
-                activeFile.set(path, default)
+                activeFile.set(path, default, directInteraction = directInteraction)
 
                 if (useCache)
                     cache[getSuperPath()] = default!!
@@ -76,7 +77,7 @@ open class ActivePreference<T>(
             if (useCache)
                 cache[getSuperPath()] = value!!
 
-            activeFile.set(path = path, newValue = value)
+            activeFile.set(path = path, newValue = value, directInteraction = directInteraction)
 
         } catch (ignore: StringIndexOutOfBoundsException) {
         }
