@@ -4,6 +4,8 @@ import com.destroystokyo.paper.utils.PaperPluginLogger
 import de.fruxz.sdk.configuration.ActivePreference
 import de.fruxz.sdk.configuration.ActivePreferenceString
 import de.fruxz.sdk.domain.display.Transmission
+import de.fruxz.sdk.domain.event.SenderExecuteFruxzCommandEvent
+import de.fruxz.sdk.domain.event.SenderExecuteFruxzCommandPreEvent
 import org.bukkit.command.*
 import org.bukkit.command.Command
 import org.bukkit.entity.Player
@@ -30,41 +32,76 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
      */
     override fun onCommand(sender: CommandSender, command: Command, label: String, parameters: Array<out String>): Boolean {
         val executionProcess = this::onExecute
+        val preCommandEvent = SenderExecuteFruxzCommandPreEvent(
+            executedPlugin = plugin,
+            sender = sender,
+            command = this,
+            isCancelled = false,
+            label = label,
+            parameters = parameters,
+        )
 
-        if (commandPermissionLevel != CommandPermissionLevel.FRAMEWORK || (requiredCommandPermission != null && sender.hasPermission("$requiredCommandPermission"))) {
-            if (requiredClientType == CommandClientAccessType.BOTH || (sender is Player && requiredClientType == CommandClientAccessType.PLAYER) || (sender is ConsoleCommandSender && requiredClientType == CommandClientAccessType.CONSOLE)) {
+        plugin.callEvent(preCommandEvent)
 
-                val clientType = if (sender is Player) {
-                    CommandClientType.PLAYER
-                } else CommandClientType.CONSOLE
+        if (!preCommandEvent.isCancelled) {
+            if (commandPermissionLevel != CommandPermissionLevel.FRAMEWORK || (requiredCommandPermission != null && sender.hasPermission(
+                    "$requiredCommandPermission"
+                ))
+            ) {
+                if (requiredClientType == CommandClientAccessType.BOTH || (sender is Player && requiredClientType == CommandClientAccessType.PLAYER) || (sender is ConsoleCommandSender && requiredClientType == CommandClientAccessType.CONSOLE)) {
 
-                try {
-                    when (executionProcess(clientType, sender, this, label, parameters)) {
+                    val clientType = if (sender is Player) {
+                        CommandClientType.PLAYER
+                    } else CommandClientType.CONSOLE
 
-                        CommandResult.NOT_PERMITTED -> sendPermissionMessage(sender = sender)
-                        CommandResult.WRONG_CLIENT -> sendClientTypeMessage(sender = sender)
-                        CommandResult.WRONG_USAGE -> sendUsageMessage(sender = sender)
-                        CommandResult.UNEXPECTED -> throw Exception("Unexpected command behavior result!")
-                        CommandResult.SUCCESS -> commandEngineLogger.log(
-                            Level.FINEST,
-                            "Executor ${sender.name} as ${clientType.name} successfully executed $commandName-command!"
+                    try {
+                        val doneProcess = executionProcess(clientType, sender, this, label, parameters)
+                        val finishedCommandEvent = SenderExecuteFruxzCommandEvent(
+                            executedPlugin = plugin,
+                            sender = sender,
+                            command = this,
+                            isCancelled = false,
+                            label = label,
+                            parameters = parameters,
+                            result = doneProcess,
                         )
 
-                    }
-                } catch (e: Exception) {
-                    handleCommandException(exception = e, sender = sender, clientType = clientType)
-                } catch (e: Exception) {
-                    handleCommandException(exception = e, sender = sender, clientType = clientType)
-                } catch (e: NullPointerException) {
-                    handleCommandException(exception = e, sender = sender, clientType = clientType)
-                } catch (e: NoSuchElementException) {
-                    handleCommandException(exception = e, sender = sender, clientType = clientType)
-                }
+                        plugin.callEvent(finishedCommandEvent)
 
+                        when (finishedCommandEvent.result) {
+
+                            CommandResult.NOT_PERMITTED -> sendPermissionMessage(sender = sender)
+                            CommandResult.WRONG_CLIENT -> sendClientTypeMessage(sender = sender)
+                            CommandResult.WRONG_USAGE -> sendUsageMessage(sender = sender)
+                            CommandResult.UNEXPECTED -> throw Exception("Unexpected command behavior result!")
+                            CommandResult.SUCCESS -> commandEngineLogger.log(
+                                Level.FINEST,
+                                "Executor ${sender.name} as ${clientType.name} successfully executed $commandName-command!"
+                            )
+
+                        }
+
+                    } catch (e: Exception) {
+                        handleCommandException(exception = e, sender = sender, clientType = clientType)
+                    } catch (e: Exception) {
+                        handleCommandException(exception = e, sender = sender, clientType = clientType)
+                    } catch (e: NullPointerException) {
+                        handleCommandException(exception = e, sender = sender, clientType = clientType)
+                    } catch (e: NoSuchElementException) {
+                        handleCommandException(exception = e, sender = sender, clientType = clientType)
+                    }
+
+                } else
+                    sendClientTypeMessage(sender = sender, requiredClient = requiredClientType)
             } else
-                sendClientTypeMessage(sender = sender, requiredClient = requiredClientType)
-        } else
-            sendPermissionMessage(sender = sender, requiredPermission = if (commandPermissionLevel == CommandPermissionLevel.FRAMEWORK) { requiredCommandPermission } else "${command.permission}")
+                sendPermissionMessage(
+                    sender = sender,
+                    requiredPermission =
+                    if (commandPermissionLevel == CommandPermissionLevel.FRAMEWORK) {
+                        requiredCommandPermission
+                    } else "${command.permission}"
+                )
+        }
 
         return true
     }
