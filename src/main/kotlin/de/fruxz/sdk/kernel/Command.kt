@@ -44,6 +44,7 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
                         CommandResult.NOT_PERMITTED -> sendPermissionMessage(sender = sender)
                         CommandResult.WRONG_CLIENT -> sendClientTypeMessage(sender = sender)
                         CommandResult.WRONG_USAGE -> sendUsageMessage(sender = sender)
+                        CommandResult.UNEXPECTED -> throw Exception("Unexpected command behavior result!")
                         CommandResult.SUCCESS -> commandEngineLogger.log(
                             Level.FINEST,
                             "Executor ${sender.name} as ${clientType.name} successfully executed $commandName-command!"
@@ -204,7 +205,7 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
     }
 
     enum class CommandResult {
-        SUCCESS, NOT_PERMITTED, WRONG_USAGE, WRONG_CLIENT
+        SUCCESS, NOT_PERMITTED, WRONG_USAGE, WRONG_CLIENT, UNEXPECTED
     }
 
     enum class CommandClientType {
