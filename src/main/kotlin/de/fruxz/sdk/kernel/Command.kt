@@ -1,6 +1,8 @@
 package de.fruxz.sdk.kernel
 
 import com.destroystokyo.paper.utils.PaperPluginLogger
+import de.fruxz.sdk.configuration.ActivePreference
+import de.fruxz.sdk.configuration.ActivePreferenceString
 import de.fruxz.sdk.domain.display.Transmission
 import org.bukkit.command.*
 import org.bukkit.command.Command
@@ -157,13 +159,27 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
             ?: "§c§lOOPS§c,an error has occurred! Please report this to a technical engineer, we are very sorry!").sendMessage(sender)
     }
 
-    fun returnAnswer(target: CommandSender, answer: String) = Transmission(plugin, answer).sendMessage(target)
+    fun shootAnswer(target: CommandSender, stringAnswer: String, vararg replacors: Pair<String, String>) = Transmission(plugin, stringAnswer.let {
+        val out = it
 
-    fun returnAnswer(target: CommandSender, answer: Transmission) = Transmission(plugin, answer.transmissionContent).sendMessage(target)
+        for (replacor in replacors)
+            out.replace(replacor.first, replacor.second)
 
-    fun answer(target: CommandSender, answer: String) = returnAnswer(target, answer)
+        out
+    }).sendMessage(target)
 
-    fun answer(target: CommandSender, answer: Transmission) = returnAnswer(target, answer)
+    fun shootAnswer(target: CommandSender, transmissionAnswer: Transmission) = Transmission(plugin, transmissionAnswer.transmissionContent).sendMessage(target)
+
+    fun shootAnswer(target: CommandSender, preferenceStringAnswer: ActivePreferenceString, vararg replacors: Pair<String, String>) = Transmission(plugin, preferenceStringAnswer.getMessage(*replacors.toList().toTypedArray()))
+
+    fun shootAnswer(target: CommandSender, preferenceAnswer: ActivePreference<String>, vararg replacors: Pair<String, String>) = Transmission(plugin, preferenceAnswer.getContent().let {
+        val out = it
+
+        for (replacor in replacors)
+            out.replace(replacor.first, replacor.second)
+        
+        out
+    })
 
     private fun addErrorToCache(id: String, stackTrace: String) {
         commandErrors.add(Triple(Calendar.getInstance(), id, stackTrace))
