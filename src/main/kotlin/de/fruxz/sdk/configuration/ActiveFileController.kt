@@ -24,7 +24,6 @@ interface ActiveFileController {
      */
     @get:NotNull
     val activeLoader: YamlConfiguration
-        get() = YamlConfiguration.loadConfiguration(activeFile)
 
     /**
      * Loads all active data of a file with its properties

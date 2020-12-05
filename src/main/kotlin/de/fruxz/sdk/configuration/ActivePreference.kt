@@ -1,6 +1,7 @@
 package de.fruxz.sdk.configuration
 
 import org.jetbrains.annotations.NotNull
+import java.util.*
 
 /**
  * This class helps to easily read&write data to&from an [ActiveFileController] (File).
@@ -77,13 +78,9 @@ open class ActivePreference<T>(
 
             if (useCache)
                 cache[getSuperPath()] = value!!
-
-            activeFile.load()
             activeFile.set(path = path, newValue = value, directInteraction = directInteraction)
-            activeFile.save()
 
-        } catch (ignore: StringIndexOutOfBoundsException) {
-        }
+        } catch (ignore: StringIndexOutOfBoundsException) {  }
     }
 
 }
