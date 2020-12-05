@@ -1,5 +1,6 @@
 package de.fruxz.sdk
 
+import de.fruxz.sdk.domain.FlexibleLocationBundle
 import de.fruxz.sdk.domain.PluginDesign
 import de.fruxz.sdk.domain.container.*
 import de.fruxz.sdk.kernel.FruxzPlugin
@@ -25,6 +26,7 @@ class Main : FruxzPlugin() {
         registerSerializable(EnchantmentData::class)
         registerSerializable(PluginDesign::class)
         registerSerializable(ItemBundle::class)
+        registerSerializable(FlexibleLocationBundle::class)
 
     }
 
