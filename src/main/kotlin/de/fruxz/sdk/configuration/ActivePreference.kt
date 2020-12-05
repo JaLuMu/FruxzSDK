@@ -35,6 +35,7 @@ open class ActivePreference<T>(
     /**
      * Returns the current saved (or memory saved) object
      */
+    @Suppress("UNCHECKED_CAST")
     fun getContent(): T {
         val v = cache[getSuperPath()]
 
@@ -77,7 +78,9 @@ open class ActivePreference<T>(
             if (useCache)
                 cache[getSuperPath()] = value!!
 
+            activeFile.load()
             activeFile.set(path = path, newValue = value, directInteraction = directInteraction)
+            activeFile.save()
 
         } catch (ignore: StringIndexOutOfBoundsException) {
         }
