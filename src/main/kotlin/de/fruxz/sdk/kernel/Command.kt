@@ -28,7 +28,7 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
     /**
      * ***DO NOT OVERRIDE***
      */
-    override fun onCommand(sender: CommandSender, command: Command, label: String, arguments: Array<out String>): Boolean {
+    override fun onCommand(sender: CommandSender, command: Command, label: String, parameters: Array<out String>): Boolean {
         val executionProcess = this::onExecute
 
         if (commandPermissionLevel != CommandPermissionLevel.FRAMEWORK || (requiredCommandPermission != null && sender.hasPermission("$requiredCommandPermission"))) {
@@ -39,7 +39,7 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
                 } else CommandClientType.CONSOLE
 
                 try {
-                    when (executionProcess(clientType, sender, this, label, arguments)) {
+                    when (executionProcess(clientType, sender, this, label, parameters)) {
 
                         CommandResult.NOT_PERMITTED -> sendPermissionMessage(sender = sender)
                         CommandResult.WRONG_CLIENT -> sendClientTypeMessage(sender = sender)
