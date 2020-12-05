@@ -6,6 +6,7 @@ import de.fruxz.sdk.util.BoolUtils
 import org.bukkit.command.CommandExecutor
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.configuration.serialization.ConfigurationSerialization
+import org.bukkit.event.Event
 import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
 import org.jetbrains.annotations.NotNull
@@ -115,6 +116,13 @@ abstract class FruxzPlugin : JavaPlugin() {
     fun bootService(service: SystemService) {
         server.logger.log(Level.INFO, "Plugin '${this.name}'//($pluginName) is booting service '${service::class.simpleName}'//(${service::class.qualifiedName}) [${BoolUtils().boolSelector(service.provider.isAsync, "Async", "Sync")}]")
         service.boot()
+    }
+
+    /**
+     * Calling an bukkit-event
+     */
+    fun callEvent(event: Event) {
+        server.pluginManager.callEvent(event)
     }
 
     /**
