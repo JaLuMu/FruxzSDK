@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'de.fruxz.sdk'
-version = '0.5.2b'
+version = '0.6'
 
 repositories {
     mavenCentral()
