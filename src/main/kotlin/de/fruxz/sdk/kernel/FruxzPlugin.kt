@@ -72,7 +72,7 @@ abstract class FruxzPlugin : JavaPlugin() {
                 bukkitCommand.usage = command.buildCommandUsage()
 
                 if (command.commandPermissionLevel == Command.CommandPermissionLevel.LEGACY)
-                    bukkitCommand.permission = command.requiredCommandPermission?.let { generatePluginPermission(it) }
+                    bukkitCommand.permission = command.requiredCommandPermission?.fullPermission
 
             } else
                 throw IllegalArgumentException("Cannot find Command with name '${command.commandName}' in plugin.yml!")

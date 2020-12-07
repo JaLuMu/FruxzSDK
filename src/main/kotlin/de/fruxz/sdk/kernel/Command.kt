@@ -3,6 +3,7 @@ package de.fruxz.sdk.kernel
 import com.destroystokyo.paper.utils.PaperPluginLogger
 import de.fruxz.sdk.configuration.ActivePreference
 import de.fruxz.sdk.configuration.ActivePreferenceString
+import de.fruxz.sdk.domain.SmartPermission
 import de.fruxz.sdk.domain.display.Transmission
 import de.fruxz.sdk.domain.event.SenderExecuteFruxzCommandEvent
 import de.fruxz.sdk.domain.event.SenderExecuteFruxzCommandPreEvent
@@ -97,7 +98,7 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
                     sender = sender,
                     requiredPermission =
                     if (commandPermissionLevel == CommandPermissionLevel.FRAMEWORK) {
-                        requiredCommandPermission
+                        requiredCommandPermission?.fullPermission
                     } else "${command.permission}"
                 )
         }
@@ -134,7 +135,7 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
      * This defines the required command execution permission
      */
     @get:Nullable
-    abstract val requiredCommandPermission: String?
+    abstract val requiredCommandPermission: SmartPermission?
 
     /**
      * Which kind of command-permission-system is used?
@@ -170,12 +171,12 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
         }
     }
 
-    fun sendPermissionMessage(sender: CommandSender, requiredPermission: String? = ::requiredCommandPermission.get()) {
+    fun sendPermissionMessage(sender: CommandSender, requiredPermission: String? = ::requiredCommandPermission.get()?.fullPermission) {
         Transmission(plugin = plugin, message = plugin.pluginDesign.permissionMessage?.replace("<PERMISSION>", "$requiredPermission")
             ?: "§cTo execute this command you also need the permission '$requiredPermission'!").sendMessage(sender)
     }
 
-    fun sendPermissionMessage(sender: CommandSender) = sendPermissionMessage(sender = sender, requiredPermission = ::requiredCommandPermission.get())
+    fun sendPermissionMessage(sender: CommandSender) = sendPermissionMessage(sender = sender, requiredPermission = ::requiredCommandPermission.get()?.fullPermission)
 
     fun sendUsageMessage(sender: CommandSender, commandUsage: String = buildCommandUsage()) {
         Transmission(plugin = plugin, message = plugin.pluginDesign.usageMessage?.replace("<USAGE>", buildCommandUsage())
