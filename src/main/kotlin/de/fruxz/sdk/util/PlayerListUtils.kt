@@ -5,7 +5,8 @@ import org.bukkit.OfflinePlayer
 
 class PlayerListUtils {
 
-    fun generateBooleanColoredPlayers(players: Collection<OfflinePlayer>, yes: ChatColor = ChatColor.GREEN, no: ChatColor = ChatColor.RED, checkment: (OfflinePlayer) -> Boolean): StringBuilder {
+    @Deprecated(level = DeprecationLevel.ERROR, message = "")
+    fun generateLegacyBooleanColoredPlayers(players: Collection<OfflinePlayer>, yes: ChatColor = ChatColor.GREEN, no: ChatColor = ChatColor.RED, checkment: (OfflinePlayer) -> Boolean): StringBuilder {
         val out = StringBuilder()
 
         players.forEach {
@@ -20,7 +21,8 @@ class PlayerListUtils {
         return out
     }
 
-    fun generateBooleanColoredPlayers(vararg players: OfflinePlayer, yes: ChatColor = ChatColor.GREEN, no: ChatColor = ChatColor.RED, checkment: (OfflinePlayer) -> Boolean) =
-        generateBooleanColoredPlayers(players.toList(), yes, no, checkment)
+    fun generateBooleanColored(players: Collection<OfflinePlayer>, yes: ChatColor = ChatColor.GREEN, no: ChatColor = ChatColor.RED, checkment: (OfflinePlayer) -> Boolean): String {
+        return (ListUtils().convert(players) { player -> "${checkment(player).let { if (it) yes else no }}${player.name}"}).joinToString("§7, ")
+    }
 
 }
