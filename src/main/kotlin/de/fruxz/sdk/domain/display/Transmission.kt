@@ -2,8 +2,10 @@ package de.fruxz.sdk.domain.display
 
 import de.fruxz.sdk.configuration.ActivePreference
 import de.fruxz.sdk.configuration.ActivePreferenceString
-import de.fruxz.sdk.domain.event.PlayerReceiveTransmissionActionBarEvent
-import de.fruxz.sdk.domain.event.SenderReceiveTransmissionMessageEvent
+import de.fruxz.sdk.domain.event.transmission.PlayerReceiveTransmissionActionBarEvent
+import de.fruxz.sdk.domain.event.transmission.SenderReceiveTransmissionMessageEvent
+import de.fruxz.sdk.domain.event.transmission.TransmissionBroadcastActionBarEvent
+import de.fruxz.sdk.domain.event.transmission.TransmissionBroadcastMessageEvent
 import de.fruxz.sdk.kernel.FruxzPlugin
 import net.md_5.bungee.api.chat.ComponentBuilder
 import org.bukkit.Bukkit
@@ -107,20 +109,41 @@ class Transmission {
     fun sendActionBar(players: Collection<Player>) = sendActionBar(player = players.toTypedArray())
 
     fun broadcastMessage() {
-        plugin.server.broadcast(*transmissionContent.create())
+        val event = TransmissionBroadcastMessageEvent(plugin, this, false)
+
+        plugin.callEvent(event)
+
+        if (!event.isCancelled)
+            plugin.server.broadcast(*event.transmission.transmissionContent.create())
     }
 
     fun broadcastActionBar() {
-        sendActionBar(plugin.server.onlinePlayers)
+        val event = TransmissionBroadcastActionBarEvent(plugin, this, false)
+
+        plugin.callEvent(event)
+
+        if (!event.isCancelled)
+            event.transmission.sendActionBar(plugin.server.onlinePlayers)
     }
 
     fun broadcastMessage(server: Server? = Bukkit.getServer(), permission: String) {
-            plugin.server.broadcast(*transmissionContent.create())
-            sendMessage(plugin.server.onlinePlayers.filter { it.hasPermission(permission) })
+        val event = TransmissionBroadcastMessageEvent(plugin, this, false)
+
+        plugin.callEvent(event)
+
+        if (!event.isCancelled) {
+            (server ?: plugin.server).consoleSender.sendMessage(*event.transmission.transmissionContent.create())
+            event.transmission.sendMessage(plugin.server.onlinePlayers.filter { it.hasPermission(permission) })
+        }
     }
 
     fun broadcastActionBar(server: Server? = Bukkit.getServer(), permission: String) {
-            sendActionBar(plugin.server.onlinePlayers.filter { it.hasPermission(permission) })
+        val event = TransmissionBroadcastActionBarEvent(plugin, this, false)
+
+        plugin.callEvent(event)
+
+        if (!event.isCancelled)
+            event.transmission.sendActionBar((server ?: plugin.server).onlinePlayers.filter { it.hasPermission(permission) })
     }
 
 }
