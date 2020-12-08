@@ -1,12 +1,16 @@
 package de.fruxz.sdk.kernel
 
 import de.fruxz.sdk.domain.PluginDesign
+import de.fruxz.sdk.domain.service.SystemService
+import de.fruxz.sdk.util.BoolUtils
 import org.bukkit.command.CommandExecutor
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.configuration.serialization.ConfigurationSerialization
+import org.bukkit.event.Event
 import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
 import org.jetbrains.annotations.NotNull
+import java.util.logging.Level
 import kotlin.reflect.KClass
 
 /**
@@ -18,7 +22,7 @@ import kotlin.reflect.KClass
 abstract class FruxzPlugin : JavaPlugin() {
 
     @get:NotNull
-    abstract val pluginDesign: PluginDesign
+    abstract var pluginDesign: PluginDesign
 
     /**
      * This string represents the plugin name
@@ -37,6 +41,9 @@ abstract class FruxzPlugin : JavaPlugin() {
     @get:NotNull
     protected val localPluginManager = server.pluginManager
 
+    @NotNull
+    fun generatePluginPermission(@NotNull permission: String) = "${this.description.name}.$permission"
+
     /**
      * This method simply adds a legacy command
      * to the server via the [executor] with the name
@@ -45,23 +52,34 @@ abstract class FruxzPlugin : JavaPlugin() {
      */
     @Deprecated(message = "With FruxzSDK Bukkit-Commands are deprecated!", level = DeprecationLevel.WARNING, replaceWith = ReplaceWith("addCommand(command)"))
     fun addCommand(name: String, executor: CommandExecutor) {
-        getCommand(name)?.setExecutor(executor)
+        try {
+            getCommand(name)?.setExecutor(executor)
+            logger.log(Level.WARNING, "Error during adding legacy-command")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     fun addCommand(@NotNull command: Command) {
-        val bukkitCommand = getCommand(command.commandName)
 
-        if (bukkitCommand != null) {
+        try {
+            val bukkitCommand = getCommand(command.commandName)
 
-            bukkitCommand.setExecutor(command)
-            bukkitCommand.tabCompleter = command.buildTabCompleter()
-            bukkitCommand.usage = command.buildCommandUsage()
+            if (bukkitCommand != null) {
 
-            if (command.commandPermissionLevel == Command.CommandPermissionLevel.LEGACY)
-                bukkitCommand.permission = command.requiredCommandPermission
+                bukkitCommand.setExecutor(command)
+                bukkitCommand.tabCompleter = command.buildTabCompleter()
+                bukkitCommand.usage = command.buildCommandUsage()
 
-        } else
-            throw IllegalArgumentException("Cannot find Command with name '${command.commandName}' in plugin.yml!")
+                if (command.commandPermissionLevel == Command.CommandPermissionLevel.LEGACY)
+                    bukkitCommand.permission = command.requiredCommandPermission?.fullPermission
+
+            } else
+                throw IllegalArgumentException("Cannot find Command with name '${command.commandName}' in plugin.yml!")
+        } catch (e: Exception) {
+            logger.log(Level.WARNING, "Error during adding command")
+            e.printStackTrace()
+        }
 
     }
 
@@ -70,7 +88,12 @@ abstract class FruxzPlugin : JavaPlugin() {
      * Paper, Spigot and FruxzSDK events are added.
      */
     fun addHandler(listener: Listener) {
-        localPluginManager.registerEvents(listener, this)
+        try {
+            localPluginManager.registerEvents(listener, this)
+        } catch (e: Exception) {
+            logger.log(Level.WARNING, "Error during adding listener")
+            e.printStackTrace()
+        }
     }
 
     /**
@@ -85,6 +108,21 @@ abstract class FruxzPlugin : JavaPlugin() {
      */
     fun registerSerializable(clazz: KClass<out ConfigurationSerializable>) {
         ConfigurationSerialization.registerClass(clazz.java)
+    }
+
+    /**
+     * Starting an service with its parameters
+     */
+    fun bootService(service: SystemService) {
+        server.logger.log(Level.INFO, "Plugin '${this.name}'//($pluginName) is booting service '${service::class.simpleName}'//(${service::class.qualifiedName}) [${BoolUtils().boolSelector(service.provider.isAsync, "Async", "Sync")}]")
+        service.boot()
+    }
+
+    /**
+     * Calling an bukkit-event
+     */
+    fun callEvent(event: Event) {
+        server.pluginManager.callEvent(event)
     }
 
     /**

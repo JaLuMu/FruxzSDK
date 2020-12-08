@@ -1,10 +1,10 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.4.10'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.21'
     id 'maven-publish'
 }
 
 group = 'de.fruxz.sdk'
-version = '0.2'
+version = '1.0'
 
 repositories {
     mavenCentral()
@@ -17,7 +17,10 @@ dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
     compileOnly 'com.destroystokyo.paper:paper-api:1.16.4-R0.1-SNAPSHOT'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:1.4.21"
+
 }
 
 publishing {

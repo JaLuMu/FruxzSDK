@@ -1,5 +1,6 @@
 package de.fruxz.sdk.configuration
 
+import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -9,6 +10,8 @@ import java.io.FileNotFoundException
 class ConfigurationFile(file: File) : ActiveFileController {
 
     override val activeFile = file
+
+    override val activeLoader = YamlConfiguration.loadConfiguration(activeFile)
 
     override fun load() {
         try {
@@ -25,13 +28,15 @@ class ConfigurationFile(file: File) : ActiveFileController {
 
     override fun set(path: String, newValue: Any?, directInteraction: Boolean) {
 
-        if (directInteraction)
+        if (directInteraction) {
             load()
+        }
 
         activeLoader.set(path, newValue)
 
-        if (directInteraction)
+        if (directInteraction) {
             save()
+        }
 
     }
 

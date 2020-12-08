@@ -1,20 +1,42 @@
 package de.fruxz.sdk.configuration
 
 import org.jetbrains.annotations.NotNull
+import java.util.*
 
-class ActivePreference<T>(
+/**
+ * This class helps to easily read&write data to&from an [ActiveFileController] (File).
+ * @param activeFile The file, which is used for read & write
+ * @param path The path, which the data is saved
+ * @param default The default object, which is defined for [path]
+ * @param useCache Save the object in the system-memory
+ */
+open class ActivePreference<T>(
     val activeFile: ActiveFileController,
     val path: String,
     val default: T,
-    val useCache: Boolean = false
+    val useCache: Boolean = false,
+    val directInteraction: Boolean = true,
 ) {
 
     companion object {
+
+        /**
+         * The system-memory for [useCache] enabled objects
+         * *saved under [getSuperPath]!*
+         */
         val cache = HashMap<String, Any>()
+
     }
 
+    /**
+     * Generates an superpath used by the [cache]
+     */
     fun getSuperPath() = "${activeFile.activeFile.path}::$path"
 
+    /**
+     * Returns the current saved (or memory saved) object
+     */
+    @Suppress("UNCHECKED_CAST")
     fun getContent(): T {
         val v = cache[getSuperPath()]
 
@@ -36,7 +58,7 @@ class ActivePreference<T>(
                 e
             } else {
 
-                activeFile.set(path, default)
+                activeFile.set(path, default, directInteraction = directInteraction)
 
                 if (useCache)
                     cache[getSuperPath()] = default!!
@@ -48,16 +70,17 @@ class ActivePreference<T>(
 
     }
 
+    /**
+     * Replaces the currently saved (or memory saved) object with an new object ([value])
+     */
     fun setContent(@NotNull value: T) {
         try {
 
             if (useCache)
                 cache[getSuperPath()] = value!!
+            activeFile.set(path = path, newValue = value, directInteraction = directInteraction)
 
-            activeFile.set(path = path, newValue = value)
-
-        } catch (ignore: StringIndexOutOfBoundsException) {
-        }
+        } catch (ignore: StringIndexOutOfBoundsException) {  }
     }
 
 }

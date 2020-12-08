@@ -1,7 +1,12 @@
 package de.fruxz.sdk.kernel
 
 import com.destroystokyo.paper.utils.PaperPluginLogger
+import de.fruxz.sdk.configuration.ActivePreference
+import de.fruxz.sdk.configuration.ActivePreferenceString
+import de.fruxz.sdk.domain.SmartPermission
 import de.fruxz.sdk.domain.display.Transmission
+import de.fruxz.sdk.domain.event.command.SenderExecuteFruxzCommandEvent
+import de.fruxz.sdk.domain.event.command.SenderExecuteFruxzCommandPreEvent
 import org.bukkit.command.*
 import org.bukkit.command.Command
 import org.bukkit.entity.Player
@@ -11,7 +16,6 @@ import java.util.*
 import java.util.logging.Level
 import kotlin.Exception
 import kotlin.NoSuchElementException
-import kotlin.collections.ArrayList
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -26,42 +30,78 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
     /**
      * ***DO NOT OVERRIDE***
      */
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
+    override fun onCommand(sender: CommandSender, command: Command, label: String, parameters: Array<out String>): Boolean {
         val executionProcess = this::onExecute
+        val preCommandEvent = SenderExecuteFruxzCommandPreEvent(
+            executedPlugin = plugin,
+            sender = sender,
+            command = this,
+            isCancelled = false,
+            label = label,
+            parameters = parameters,
+        )
 
-        if (commandPermissionLevel != CommandPermissionLevel.FRAMEWORK || (requiredCommandPermission != null && sender.hasPermission("$requiredCommandPermission"))) {
-            if (requiredClientType == CommandClientAccessType.BOTH || (sender is Player && requiredClientType == CommandClientAccessType.PLAYER) || (sender is ConsoleCommandSender && requiredClientType == CommandClientAccessType.CONSOLE)) {
+        plugin.callEvent(preCommandEvent)
 
-                val clientType = if (sender is Player) {
-                    CommandClientType.PLAYER
-                } else CommandClientType.CONSOLE
+        if (!preCommandEvent.isCancelled) {
+            if (commandPermissionLevel != CommandPermissionLevel.FRAMEWORK || (requiredCommandPermission != null && sender.hasPermission(
+                    "$requiredCommandPermission"
+                ))
+            ) {
+                if (requiredClientType == CommandClientAccessType.BOTH || (sender is Player && requiredClientType == CommandClientAccessType.PLAYER) || (sender is ConsoleCommandSender && requiredClientType == CommandClientAccessType.CONSOLE)) {
 
-                try {
-                    when (executionProcess(clientType, sender, this, label, args)) {
+                    val clientType = if (sender is Player) {
+                        CommandClientType.PLAYER
+                    } else CommandClientType.CONSOLE
 
-                        CommandResult.NOT_PERMITTED -> sendPermissionMessage(sender = sender)
-                        CommandResult.WRONG_CLIENT -> sendClientTypeMessage(sender = sender)
-                        CommandResult.WRONG_USAGE -> sendUsageMessage(sender = sender)
-                        CommandResult.SUCCESS -> commandEngineLogger.log(
-                            Level.FINEST,
-                            "Executor ${sender.name} as ${clientType.name} successfully executed $commandName-command!"
+                    try {
+                        val doneProcess = executionProcess(clientType, sender, this, label, parameters)
+                        val finishedCommandEvent = SenderExecuteFruxzCommandEvent(
+                            executedPlugin = plugin,
+                            sender = sender,
+                            command = this,
+                            isCancelled = false,
+                            label = label,
+                            parameters = parameters,
+                            result = doneProcess,
                         )
 
-                    }
-                } catch (e: Exception) {
-                    handleCommandException(exception = e, sender = sender, clientType = clientType)
-                } catch (e: Exception) {
-                    handleCommandException(exception = e, sender = sender, clientType = clientType)
-                } catch (e: NullPointerException) {
-                    handleCommandException(exception = e, sender = sender, clientType = clientType)
-                } catch (e: NoSuchElementException) {
-                    handleCommandException(exception = e, sender = sender, clientType = clientType)
-                }
+                        plugin.callEvent(finishedCommandEvent)
 
+                        when (finishedCommandEvent.result) {
+
+                            CommandResult.NOT_PERMITTED -> sendPermissionMessage(sender = sender)
+                            CommandResult.WRONG_CLIENT -> sendClientTypeMessage(sender = sender)
+                            CommandResult.WRONG_USAGE -> sendUsageMessage(sender = sender)
+                            CommandResult.UNEXPECTED -> throw Exception("Unexpected command behavior result!")
+                            CommandResult.SUCCESS -> commandEngineLogger.log(
+                                Level.FINEST,
+                                "Executor ${sender.name} as ${clientType.name} successfully executed $commandName-command!"
+                            )
+
+                        }
+
+                    } catch (e: Exception) {
+                        handleCommandException(exception = e, sender = sender, clientType = clientType)
+                    } catch (e: Exception) {
+                        handleCommandException(exception = e, sender = sender, clientType = clientType)
+                    } catch (e: NullPointerException) {
+                        handleCommandException(exception = e, sender = sender, clientType = clientType)
+                    } catch (e: NoSuchElementException) {
+                        handleCommandException(exception = e, sender = sender, clientType = clientType)
+                    }
+
+                } else
+                    sendClientTypeMessage(sender = sender, requiredClient = requiredClientType)
             } else
-                sendClientTypeMessage(sender = sender, requiredClient = requiredClientType)
-        } else
-            sendPermissionMessage(sender = sender, requiredPermission = if (commandPermissionLevel == CommandPermissionLevel.FRAMEWORK) { requiredCommandPermission } else "${command.permission}")
+                sendPermissionMessage(
+                    sender = sender,
+                    requiredPermission =
+                    if (commandPermissionLevel == CommandPermissionLevel.FRAMEWORK) {
+                        requiredCommandPermission?.fullPermission
+                    } else "${command.permission}"
+                )
+        }
 
         return true
     }
@@ -95,7 +135,7 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
      * This defines the required command execution permission
      */
     @get:Nullable
-    abstract val requiredCommandPermission: String?
+    abstract val requiredCommandPermission: SmartPermission?
 
     /**
      * Which kind of command-permission-system is used?
@@ -131,12 +171,12 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
         }
     }
 
-    fun sendPermissionMessage(sender: CommandSender, requiredPermission: String? = ::requiredCommandPermission.get()) {
+    fun sendPermissionMessage(sender: CommandSender, requiredPermission: String? = ::requiredCommandPermission.get()?.fullPermission) {
         Transmission(plugin = plugin, message = plugin.pluginDesign.permissionMessage?.replace("<PERMISSION>", "$requiredPermission")
             ?: "§cTo execute this command you also need the permission '$requiredPermission'!").sendMessage(sender)
     }
 
-    fun sendPermissionMessage(sender: CommandSender) = sendPermissionMessage(sender = sender, requiredPermission = ::requiredCommandPermission.get())
+    fun sendPermissionMessage(sender: CommandSender) = sendPermissionMessage(sender = sender, requiredPermission = ::requiredCommandPermission.get()?.fullPermission)
 
     fun sendUsageMessage(sender: CommandSender, commandUsage: String = buildCommandUsage()) {
         Transmission(plugin = plugin, message = plugin.pluginDesign.usageMessage?.replace("<USAGE>", buildCommandUsage())
@@ -151,6 +191,33 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
     }
 
     fun sendClientTypeMessage(sender: CommandSender) = sendClientTypeMessage(sender = sender, requiredClient = ::requiredClientType.get())
+
+    fun sendFailMessage(sender: CommandSender) {
+        Transmission(plugin = plugin, message = plugin.pluginDesign.useErrorMessage
+            ?: "§c§lOOPS§c,an error has occurred! Please report this to a technical engineer, we are very sorry!").sendMessage(sender)
+    }
+
+    fun shootAnswer(target: CommandSender, stringAnswer: String, vararg replacors: Pair<String, String>) = Transmission(plugin, stringAnswer.let {
+        val out = it
+
+        for (replacor in replacors)
+            out.replace(replacor.first, replacor.second)
+
+        out
+    }).sendMessage(target)
+
+    fun shootAnswer(target: CommandSender, transmissionAnswer: Transmission) = Transmission(plugin, transmissionAnswer.transmissionContent).sendMessage(target)
+
+    fun shootAnswer(target: CommandSender, preferenceStringAnswer: ActivePreferenceString, vararg replacors: Pair<String, String>) = Transmission(plugin, preferenceStringAnswer.getMessage(*replacors.toList().toTypedArray()))
+
+    fun shootAnswer(target: CommandSender, preferenceAnswer: ActivePreference<String>, vararg replacors: Pair<String, String>) = Transmission(plugin, preferenceAnswer.getContent().let {
+        val out = it
+
+        for (replacor in replacors)
+            out.replace(replacor.first, replacor.second)
+
+        out
+    })
 
     private fun addErrorToCache(id: String, stackTrace: String) {
         commandErrors.add(Triple(Calendar.getInstance(), id, stackTrace))
@@ -170,10 +237,12 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
         commandEngineLogger.log(Level.WARNING, "--- [  END $errorID  ] ------------------------")
 
         addErrorToCache(errorID, exception.stackTraceToString())
+
+        sendFailMessage(sender) // send user friendly error message
     }
 
     enum class CommandResult {
-        SUCCESS, NOT_PERMITTED, WRONG_USAGE, WRONG_CLIENT
+        SUCCESS, NOT_PERMITTED, WRONG_USAGE, WRONG_CLIENT, UNEXPECTED
     }
 
     enum class CommandClientType {
