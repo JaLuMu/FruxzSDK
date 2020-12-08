@@ -15,7 +15,7 @@ With v1.0 some groundbreaking features are added to FruxzSDK, which greatly simp
 
 # ToDo-List
 
-- [ ] VisualKeyboards
+- [ ] VisualKeyboards (StringBuilder based optical-type-keyboard with 3rd-party-integration)
   - [ ] VisualKeyboardEvents
   - [ ] VisualKeyboardChatIntegration
   - [ ] VisualKeyboardPluginAPI
