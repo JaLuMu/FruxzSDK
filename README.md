@@ -7,6 +7,8 @@ FruxzSDK is the solution for a better programming experience for bukkit plugins.
 
 With FruxzSDK some new and revised features are added to the workflow, saving the developer a lot of time and effort.
 
+FruxzSDK is also optimized for the usage of 1.16 Minecraft-Servers and for the usage of Kotlin (**ALSO JAVA COMPATIBLE!!!**)
+
 # v1.0
 
 We have worked long and hard to present this to you: ***v1.0!***
