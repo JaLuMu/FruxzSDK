@@ -39,3 +39,20 @@ With v1.0 some groundbreaking features are added to FruxzSDK, which greatly simp
 - [x] Item's
 - [x] Plugin-Designs
 - [x] Solid-Kernel
+
+# Bugs
+
+Please report bugs directly to the *Issues*-Tab, that helps us a lot to improve FruxzSDK!
+
+# Maven & Gradle
+
+To use FruxzSDK in your next plugin-project, use the fruxzsdk maven package, hosted by GitHub-Packages!
+
+*You can find help to that topic in the GitHub-Docs!*
+
+# Specs
+
+- WrittenInKotlin
+- DevelopedWithGradle
+- HostedByGitHubPackages
+- PoweredByCats
