@@ -1,4 +1,4 @@
-package de.fruxz.sdk.domain.event
+package de.fruxz.sdk.domain.event.command
 
 import de.fruxz.sdk.kernel.Command
 import de.fruxz.sdk.kernel.FruxzPlugin

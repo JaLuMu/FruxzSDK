@@ -5,8 +5,8 @@ import de.fruxz.sdk.configuration.ActivePreference
 import de.fruxz.sdk.configuration.ActivePreferenceString
 import de.fruxz.sdk.domain.SmartPermission
 import de.fruxz.sdk.domain.display.Transmission
-import de.fruxz.sdk.domain.event.SenderExecuteFruxzCommandEvent
-import de.fruxz.sdk.domain.event.SenderExecuteFruxzCommandPreEvent
+import de.fruxz.sdk.domain.event.command.SenderExecuteFruxzCommandEvent
+import de.fruxz.sdk.domain.event.command.SenderExecuteFruxzCommandPreEvent
 import org.bukkit.command.*
 import org.bukkit.command.Command
 import org.bukkit.entity.Player
