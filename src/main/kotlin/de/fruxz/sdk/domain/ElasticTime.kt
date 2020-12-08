@@ -3,11 +3,14 @@ package de.fruxz.sdk.domain
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
+/**
+ * This class helps to easily convert an time to an displayable clock [String]
+ */
 class ElasticTime {
 
-    var ticks: Int
+    var ticks: Double
 
-    constructor(ticks: Int) {
+    constructor(ticks: Double) {
         this.ticks = ticks
     }
 
@@ -27,11 +30,11 @@ class ElasticTime {
     fun getClockDisplay(vararg views: TimeFormat): String {
         var out = ""
 
-        val remainingYears = floor(ticks.toDouble() / (20*60*60*24*365)).roundToInt()
-        val remainingDays = floor(ticks.toDouble() / (20*60*60*24)).roundToInt() - (remainingYears * 365)
-        val remainingHours = floor(ticks.toDouble() / (20*60*60)).roundToInt() - (remainingYears * 24*365) - (remainingDays * 24)
-        val remainingMinutes = floor(ticks.toDouble() / (20*60)).roundToInt() - (remainingYears * 60*24*365) - (remainingDays * 60*24) - (remainingHours * 60)
-        val remainingSeconds = floor(ticks.toDouble() / 20).roundToInt() - (remainingYears * 60*60*24*365) - (remainingDays * 60*60*24) - (remainingHours * 60*60) - (remainingMinutes * 60)
+        val remainingYears = floor(ticks / (20*60*60*24*365)).roundToInt()
+        val remainingDays = floor(ticks / (20*60*60*24)).roundToInt() - (remainingYears * 365)
+        val remainingHours = floor(ticks / (20*60*60)).roundToInt() - (remainingYears * 24*365) - (remainingDays * 24)
+        val remainingMinutes = floor(ticks / (20*60)).roundToInt() - (remainingYears * 60*24*365) - (remainingDays * 60*24) - (remainingHours * 60)
+        val remainingSeconds = floor(ticks / 20).roundToInt() - (remainingYears * 60*60*24*365) - (remainingDays * 60*60*24) - (remainingHours * 60*60) - (remainingMinutes * 60)
         val remainingTicks = ticks - (remainingYears * 20*60*60*24*365) - (remainingDays * 20*60*60*24) - (remainingHours * 20*60*60) - (remainingMinutes * 20*60) - (remainingSeconds * 20)
 
         TimeFormat.values()
@@ -63,12 +66,12 @@ class ElasticTime {
          * @return value ([TimeFormat]) in ticks
          */
         fun ticks(value: Double) = when (this) {
-            TICKS -> value.toInt()
-            SECONDS -> (value*20).toInt()
-            MINUTES -> (value*60*20).toInt()
-            HOURS -> (value*60*60*20).toInt()
-            DAYS -> (value*24*60*60*20).toInt()
-            YEARS -> (value*365*24*60*60*20).toInt()
+            TICKS -> value
+            SECONDS -> value*20
+            MINUTES -> value*60*20
+            HOURS -> value*60*60*20
+            DAYS -> value*24*60*60*20
+            YEARS -> value*365*24*60*60*20
         }
 
     }
