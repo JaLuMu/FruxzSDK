@@ -1,5 +1,7 @@
 package de.fruxz.sdk.domain.container
 
+import com.destroystokyo.paper.MaterialTags
+import de.fruxz.sdk.domain.User
 import de.fruxz.sdk.domain.display.TransmissionContentObjectable
 import de.fruxz.sdk.util.ListUtils
 import net.md_5.bungee.api.chat.HoverEvent
@@ -7,13 +9,16 @@ import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
+import org.bukkit.OfflinePlayer
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
+import org.bukkit.inventory.meta.SkullMeta
 import org.jetbrains.annotations.NotNull
+import java.util.*
 
 class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable {
 
@@ -24,6 +29,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
     var lore: ItemLore
     var modifications: ArrayList<EnchantmentData>
     val flags: ArrayList<ItemFlag>
+    var skullOwner: UUID?
 
     constructor() {
         material = Material.AIR
@@ -33,6 +39,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         lore = ItemLore()
         modifications = ArrayList()
         flags = ArrayList()
+        skullOwner = null
     }
 
     constructor(material: Material) {
@@ -43,6 +50,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         lore = ItemLore()
         modifications = ArrayList()
         flags = ArrayList()
+        skullOwner = null
     }
 
     constructor(itemStack: ItemStack) {
@@ -53,9 +61,13 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         lore = ItemLore(itemStack.lore)
         modifications = ArrayList(legacyEnchantmentsToData(itemStack.enchantments))
         flags = ArrayList(itemStack.itemFlags.toList())
+        skullOwner = if (itemStack.type == Material.PLAYER_HEAD) {
+            (itemStack.itemMeta as SkullMeta).owningPlayer?.uniqueId
+        } else
+            null
     }
 
-    constructor(material: Material, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList(), flags: List<ItemFlag> = emptyList()) {
+    constructor(material: Material, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList(), flags: List<ItemFlag> = emptyList(), skullOwner: UUID? = null) {
         this.material = material
         this.size = size
         this.label = label
@@ -63,6 +75,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         this.lore = lore
         this.modifications = ArrayList(modifications)
         this.flags = ArrayList(flags)
+        this.skullOwner = skullOwner
     }
 
     constructor(map: Map<String, Any>) {
@@ -72,7 +85,8 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         damage = (map["damage"] as Number).toInt()
         lore = map["lore"] as ItemLore
         modifications = ArrayList(map["modifications"] as List<EnchantmentData>)
-        flags = ArrayList(ListUtils().convert(map["flags"] as List<String>) { ItemFlag.valueOf(it) })
+        flags = ListUtils().convert(map["flags"] as List<String>) { ItemFlag.valueOf(it) }
+        skullOwner = UUID.fromString("" + map["skullOwner"])
     }
 
     var activeLore: List<String>
@@ -92,7 +106,14 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
 
         itemMeta.addItemFlags(*flags.toTypedArray())
 
-        itemStack.itemMeta = itemMeta
+        if (skullOwner != null && MaterialTags.SKULLS.isTagged(itemStack)) {
+            val skullMeta = itemStack.itemMeta as SkullMeta
+
+            skullOwner?.let { skullMeta.owningPlayer = Bukkit.getOfflinePlayer(it) }
+
+            itemStack.itemMeta = skullMeta
+        } else
+            itemStack.itemMeta = itemMeta
 
         return itemStack
     }
@@ -233,12 +254,13 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         "damage" to damage,
         "lore" to lore,
         "modifications" to modifications,
-        "flags" to ListUtils().convert(flags) { it.name }
+        "flags" to ListUtils().convert(flags) { it.name },
+        "skullOwner" to skullOwner.toString(),
     )
 
     companion object {
 
-        fun create(material: Material = Material.AIR, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList(), flags: List<ItemFlag> = emptyList()): Item {
+        fun create(material: Material = Material.AIR, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList(), flags: List<ItemFlag> = emptyList(), skullOwner: UUID? = null): Item {
             return Item(material, label, size, damage, lore, modifications, flags)
         }
 
@@ -261,6 +283,15 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
 
             return out
         }
+
+        fun createHead(offlinePlayer: OfflinePlayer) = Item(Material.PLAYER_HEAD).let {
+            it.skullOwner = offlinePlayer.uniqueId
+            it
+        }
+
+        fun createHead(uniqueIdentity: UUID) = createHead(offlinePlayer = Bukkit.getOfflinePlayer(uniqueIdentity))
+
+        fun createHead(user: User) = createHead(uniqueIdentity = user.player.uniqueId)
 
     }
 
