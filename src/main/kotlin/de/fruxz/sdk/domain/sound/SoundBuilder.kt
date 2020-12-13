@@ -1,5 +1,6 @@
 package de.fruxz.sdk.domain.sound
 
+import com.sun.istack.internal.Builder
 import org.bukkit.Location
 import org.bukkit.Sound
 import org.bukkit.entity.Player
@@ -7,7 +8,7 @@ import org.bukkit.entity.Player
 /**
  * This class helps to easily create, manage and play minecraft-sounds
  */
-class SoundBuilder {
+class SoundBuilder : Cloneable, Builder<SoundData> {
 
     private var data: SoundData
 
@@ -36,5 +37,9 @@ class SoundBuilder {
     }
 
     fun create() = data
+
+    override fun build() = create()
+
+    override fun clone() = SoundBuilder(data)
 
 }
