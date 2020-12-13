@@ -6,7 +6,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable
 /**
  * This class helps to easily manage sound and its properties
  */
-class SoundData : ConfigurationSerializable {
+class SoundData : ConfigurationSerializable, Cloneable {
 
     var type: Sound
     var volume: Double
@@ -29,5 +29,9 @@ class SoundData : ConfigurationSerializable {
         "volume" to volume,
         "pitch" to pitch,
     )
+
+    override fun clone(): SoundData {
+        return SoundData(type, volume, pitch)
+    }
 
 }
