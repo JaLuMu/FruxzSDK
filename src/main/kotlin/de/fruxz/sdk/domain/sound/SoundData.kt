@@ -30,7 +30,7 @@ class SoundData : ConfigurationSerializable, Cloneable {
         "pitch" to pitch,
     )
 
-    override fun clone() = SoundData(type, volume, pitch)
+    public override fun clone() = SoundData(type, volume, pitch)
 
     fun builder() = SoundBuilder(this)
 
