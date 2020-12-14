@@ -102,83 +102,19 @@ class SoundMelody : ConfigurationSerializable, Cloneable {
     /**
      * Play the playback to everyone at one location
      */
-    fun play(where: Location) {
-        allowedToRun = true
-
-        if (!melodyContent.isNullOrEmpty()) {
-            object : BukkitRunnable() {
-
-                var repeated = 0
-                var innerRound = 0
-
-                override fun run() {
-                    if (!paused) {
-                        val currentSounds = melodyContent[innerRound]
-
-                        currentSounds.forEach {
-                            it.builder().playSound(where = where)
-                        }
-
-                        innerRound++
-                        if (innerRound >= melodyContent.size) {
-                            innerRound = 0
-                            if (allowedToRun && (repeats == -1 || repeats > repeated)) {
-                                repeated++
-                            } else {
-                                allowedToRun = false
-                                cancel()
-                            }
-                        }
-                    }
-                }
-
-            }.runTaskTimerAsynchronously(plugin, 0, time.toLong())
-        }
-
-    }
+    fun play(where: Location) = createPlay { it.builder().playSound(where = where) }
 
     /**
      * Play the playback to only certain players at one position
      */
-    fun play(where: Location, vararg receivers: Player) {
-        allowedToRun = true
-
-        if (!melodyContent.isNullOrEmpty()) {
-            object : BukkitRunnable() {
-
-                var repeated = 0
-                var innerRound = 0
-
-                override fun run() {
-                    if (!paused) {
-                        val currentSounds = melodyContent[innerRound]
-
-                        currentSounds.forEach {
-                            it.builder().playSound(where = where, receivers = receivers)
-                        }
-
-                        innerRound++
-                        if (innerRound >= melodyContent.size) {
-                            innerRound = 0
-                            if (allowedToRun && (repeats == -1 || repeats > repeated)) {
-                                repeated++
-                            } else {
-                                allowedToRun = false
-                                cancel()
-                            }
-                        }
-                    }
-                }
-
-            }.runTaskTimerAsynchronously(plugin, 0, time.toLong())
-        }
-
-    }
+    fun play(where: Location, vararg receivers: Player) = createPlay { it.builder().playSound(where = where, receivers = receivers) }
 
     /**
      * Play the playback to only certain players everywhere
      */
-    fun play(vararg receivers: Player) {
+    fun play(vararg receivers: Player) = createPlay { it.builder().playSound(receivers = receivers) }
+
+    private fun createPlay(playMethod: (SoundData) -> Unit) {
         allowedToRun = true
 
         if (!melodyContent.isNullOrEmpty()) {
@@ -191,9 +127,7 @@ class SoundMelody : ConfigurationSerializable, Cloneable {
                     if (!paused) {
                         val currentSounds = melodyContent[innerRound]
 
-                        currentSounds.forEach {
-                            it.builder().playSound(receivers = receivers)
-                        }
+                        currentSounds.forEach { playMethod(it) }
 
                         innerRound++
                         if (innerRound >= melodyContent.size) {
@@ -210,7 +144,6 @@ class SoundMelody : ConfigurationSerializable, Cloneable {
 
             }.runTaskTimerAsynchronously(plugin, 0, time.toLong())
         }
-
     }
 
     override fun serialize() = mapOf(
