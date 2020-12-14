@@ -44,6 +44,37 @@ class SoundMelody : ConfigurationSerializable, Cloneable {
         melodyContent = ArrayList((map["melodyContent"] as ArrayList<Array<SoundData>>?) ?: emptyList())
     }
 
+    /**
+     * Adds an melody content
+     */
+    fun addStep(sounds: Array<SoundData>) {
+        melodyContent.add(sounds)
+    }
+
+    /**
+     * Removes an melody content
+     */
+    fun removeStep(sounds: Array<SoundData>) {
+        melodyContent.remove(sounds)
+    }
+
+    /**
+     * Removes an melody content
+     */
+    fun removeStep(step: Int) {
+        melodyContent.removeAt(step)
+    }
+
+    /**
+     * Removes the last melody content
+     */
+    fun removeLast() = removeStep(melodyContent.size-1)
+
+    /**
+     * Removes the first melody content
+     */
+    fun removeFirst() = removeStep(0)
+
     private var allowedToRun = false
     private var paused = false
 
