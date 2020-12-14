@@ -36,10 +36,14 @@ class SoundBuilder : Cloneable, Builder<SoundData> {
         it.playSound(where, data.type, data.volume.toFloat(), data.pitch.toFloat())
     }
 
+    fun playSound(vararg receivers: Player) = receivers.forEach {
+        it.playSound(it.location, data.type, data.volume.toFloat(), data.pitch.toFloat())
+    }
+
     fun create() = data
 
     override fun build() = create()
 
-    override fun clone() = SoundBuilder(data)
+    public override fun clone() = SoundBuilder(data)
 
 }
