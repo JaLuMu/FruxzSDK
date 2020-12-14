@@ -39,7 +39,7 @@ class SoundMelody : ConfigurationSerializable, Cloneable {
 
     constructor(map: Map<String, Any>) {
         plugin = Main.instance
-        repeats = (map["repeates"] as Number).toInt()
+        repeats = (map["repeats"] as Number).toInt()
         time = (map["time"] as Number).toInt()
         melodyContent = ArrayList((map["melodyContent"] as ArrayList<Array<SoundData>>?) ?: emptyList())
     }
