@@ -48,6 +48,20 @@ Please report bugs directly to the *Issues*-Tab, that helps us a lot to improve 
 
 To use FruxzSDK in your next plugin-project, use the fruxzsdk maven package, hosted by GitHub-Packages!
 
+## Gradle e.g.:
+
+    repositories {  
+      maven {  
+        name = "GitHubPackages"  
+        url = uri("https://maven.pkg.github.com/TheFruxz/FruxzSDK")  
+      }  
+    }
+    
+    dependencies {  
+      compileOnly 'de.fruxz.sdk:fruxzsdk:1.0'  
+    }
+
+
 *You can find help to that topic in the GitHub-Docs!*
 
 # Specs
