@@ -10,12 +10,36 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryView
 import org.bukkit.inventory.ItemStack
 
+/**
+ * This class helps to create, design and construct inventories in a simple, structured and complex way at the same time.
+ * Also, with this construct, this class helps to create everything as a [UserInterface] and keep it writable and
+ * readable for the configuration files so that ConfigurationSerialization is possible.
+ *
+ * WIKI: [Object: InventoryUI](https://github.com/TheFruxz/FruxzSDK/wiki/Object:-InventoryUI)
+ */
 class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
 
+    /**
+     * This HashMap stores the data of the contents of the inventory using the slot positions [Int] and their [Item].
+     */
     var contents: HashMap<Int, Item>
+
+    /**
+     * Specifies the display name of the inventory, which is needed when dispensing and tapping.
+     */
     var label: String
+
+    /**
+     * Specifies the size of the inventory using an [InventorySize] enum object.
+     */
     var size: InventorySize
 
+    /**
+     * Generates an [InventoryUI] using the required parameters.
+     * @param label defines the display name of the inventory
+     * @param size defines the size of the inventory
+     * @param contents defines the contents of the inventory
+     */
     constructor(label: String = "container", size: InventorySize = InventorySize.SMALL, contents: Map<Int, Item> = emptyMap()) {
         this.contents = HashMap(contents)
         this.label = label
@@ -30,6 +54,9 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
 
     }
 
+    /**
+     * Does replace any content from the [contents] with a new [Item] based on [withThat] which has the [Material]/type [that].
+     */
     fun replace(that: Material, withThat: Material) {
         val out = HashMap<Int, Item>()
 
@@ -49,6 +76,9 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
         contents = out
     }
 
+    /**
+     * Does replace any content from the [contents] with a [withThat] which is [that].
+     */
     fun replace(that: Item, withThat: Item) {
         val out = HashMap<Int, Item>()
 
@@ -59,6 +89,9 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
         contents = out
     }
 
+    /**
+     * Does replace any content from the [contents] with a [withThat] which has the [Material]/type [that].
+     */
     fun replace(that: Material, withThat: Item) {
         val out = HashMap<Int, Item>()
 
@@ -77,6 +110,9 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
         contents = out
     }
 
+    /**
+     * Does replace any content from the [contents] with a new [Item] based on [withThat] which is [that].
+     */
     fun replace(that: Item, withThat: Material) {
         val out = HashMap<Int, Item>()
 
@@ -95,30 +131,64 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
         contents = out
     }
 
+    /**
+     * Replaces any air ([Material.AIR]) with an [item] to fill the free background with this item ([item]).
+     */
     fun background(item: Item) = replace(Material.AIR, item)
 
+    /**
+     * Replaces any air ([Material.AIR]) with an new [Item] based on [material] to fill the free background with this item.
+     */
     fun background(material: Material) = background(Item(material))
 
+    /**
+     * Fills up the inventory with [items] and thus replaces all [Item]s already inserted.
+     * If multiple [Item]s are specified within [items], the contents are randomly selected.
+     */
     fun fill(vararg items: Item) {
         (0..contents.size).forEach { slot ->
             contents[slot] = items.random()
         }
     }
 
+    /**
+     * Fills up the inventory with [Item]s based on [materials] and thus replaces all [Item]s already inserted.
+     * If multiple [Material]s are specified within [materials], the contents are randomly selected.
+     */
     fun fill(vararg materials: Material) = fill(*ListUtils().convert(materials) { Item(it) })
 
+    /**
+     * Creates an inventory border, which was previously specified with a writing scheme [schema].
+     * All item slots specified in [schema] are overwritten with [item].
+     */
     fun border(item: Item, schema: Array<Int>) {
         schema.forEach { position ->
             contents[position] = item
         }
     }
 
+    /**
+     * Creates an inventory border, which was previously specified with a writing scheme [schema].
+     * All item slots specified in [schema] are overwritten with an new [Item] based on [material].
+     */
     fun border(material: Material, schema: Array<Int>) = border(Item(material), schema)
 
+    /**
+     * Creates an inventory border, which was previously specified with a writing scheme [border].
+     * All item slots specified in [border] are overwritten with [item].
+     */
     fun border(item: Item, border: UIBorder) = border(item, border.getItemPositions(size))
 
+    /**
+     * Creates an inventory border, which was previously specified with a writing scheme [border].
+     * All item slots specified in [border] are overwritten with an new [Item] based on [material].
+     */
     fun border(material: Material, border: UIBorder) = border(Item(material), border.getItemPositions(size))
 
+    /**
+     * Generates a Bukkit [Inventory] from the data stored in the [InventoryUI] object,
+     * which can be used for Bukkit/Spigot/PaperMC purposes.
+     */
     fun buildInventory(): Inventory {
         val inventory = Bukkit.createInventory(null, size.size, label)
 
@@ -129,17 +199,26 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
         return inventory
     }
 
-    fun isSameInventory(view: InventoryView) =
-        view.topInventory.size == size.size && view.title == label
-
+    /**
+     * Sets [item] to the [slot] within the [contents].
+     */
     fun place(slot: Int, item: Item) {
         contents[slot] = item
     }
 
+    /**
+     * Sets an Item based on [stack] to the [slot] within the [contents].
+     */
     fun place(slot: Int, stack: ItemStack) = place(slot = slot, item = Item(stack))
 
+    /**
+     * Sets an Item based on [material] to the [slot] within the [contents].
+     */
     fun place(slot: Int, material: Material) = place(slot = slot, item = Item(material))
 
+    /**
+     * Sets [bundle]'s [bundleSlot] to the [slot] within the [contents].
+     */
     fun place(slot: Int, bundle: ItemBundle, bundleSlot: Int) = place(slot = slot, item = bundle.items[bundleSlot])
 
     override fun serialize() = mapOf(
@@ -148,10 +227,16 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
         "content" to contents
     )
 
+    /**
+     * Opens the inventory built with [buildInventory] to [user].
+     */
     override fun sendUser(user: Player) {
         user.openInventory(buildInventory())
     }
 
+    /**
+     * Opens the inventory built with [buildInventory] to [user].
+     */
     override fun sendUser(user: User) = sendUser(user.player)
 
     public override fun clone(): InventoryUI {
