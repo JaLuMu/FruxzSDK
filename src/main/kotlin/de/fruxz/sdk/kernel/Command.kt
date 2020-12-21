@@ -194,7 +194,7 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
 
     fun sendFailMessage(sender: CommandSender) {
         Transmission(plugin = plugin, message = plugin.pluginDesign.useErrorMessage
-            ?: "§c§lOOPS§c,an error has occurred! Please report this to a technical engineer, we are very sorry!").sendMessage(sender)
+            ?: "§c§lOOPS§c, an error has occurred! Please report this to a technical engineer, we are very sorry!").sendMessage(sender)
     }
 
     fun shootAnswer(target: CommandSender, stringAnswer: String, vararg replacors: Pair<String, String>) = Transmission(plugin, stringAnswer.let {
