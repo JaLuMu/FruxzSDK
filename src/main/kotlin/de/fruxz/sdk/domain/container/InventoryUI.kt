@@ -7,7 +7,6 @@ import org.bukkit.Material
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
-import org.bukkit.inventory.InventoryView
 import org.bukkit.inventory.ItemStack
 
 /**
@@ -221,16 +220,44 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
      */
     fun place(slot: Int, bundle: ItemBundle, bundleSlot: Int) = place(slot = slot, item = bundle.items[bundleSlot])
 
-    fun place(slots: IntRange, item: Item) = slots.forEach {
+    fun place(rangeSlots: IntRange, item: Item) = rangeSlots.forEach {
         place(it, item)
     }
 
-    fun place(slots: IntRange, material: Material) = slots.forEach {
+    fun place(rangeSlots: IntRange, material: Material) = rangeSlots.forEach {
         place(it, material)
     }
 
-    fun place(slots: IntRange, bundle: ItemBundle, bundleSlot: Int) = slots.forEach {
+    fun place(rangeSlots: IntRange, bundle: ItemBundle, bundleSlot: Int) = rangeSlots.forEach {
         place(it, bundle, bundleSlot)
+    }
+
+    fun place(arraySlots: Array<Int>, item: Item) = arraySlots.forEach {
+        place(it, item)
+    }
+
+    fun place(arraySlots: Array<Int>, material: Material) = arraySlots.forEach {
+        place(it, material)
+    }
+
+    fun place(arraySlots: Array<Int>, bundle: ItemBundle, bundleSlot: Int) = arraySlots.forEach {
+        place(it, bundle, bundleSlot)
+    }
+
+    fun place(listSlots: List<Int>, item: Item) = listSlots.forEach {
+        place(it, item)
+    }
+
+    fun place(listSlots: List<Int>, material: Material) = listSlots.forEach {
+        place(it, material)
+    }
+
+    fun place(listSlots: List<Int>, bundle: ItemBundle, bundleSlot: Int) = listSlots.forEach {
+        place(it, bundle, bundleSlot)
+    }
+
+    fun place(map: Map<Int, Item>) = map.forEach { (key, value) ->
+        place(key, value)
     }
 
     override fun serialize() = mapOf(
