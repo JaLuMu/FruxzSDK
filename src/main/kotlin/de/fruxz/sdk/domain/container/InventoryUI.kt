@@ -221,6 +221,18 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
      */
     fun place(slot: Int, bundle: ItemBundle, bundleSlot: Int) = place(slot = slot, item = bundle.items[bundleSlot])
 
+    fun place(slots: IntRange, item: Item) = slots.forEach {
+        place(it, item)
+    }
+
+    fun place(slots: IntRange, material: Material) = slots.forEach {
+        place(it, material)
+    }
+
+    fun place(slots: IntRange, bundle: ItemBundle, bundleSlot: Int) = slots.forEach {
+        place(it, bundle, bundleSlot)
+    }
+
     override fun serialize() = mapOf(
         "label" to label,
         "size" to size,
