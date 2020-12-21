@@ -146,7 +146,7 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
      * If multiple [Item]s are specified within [items], the contents are randomly selected.
      */
     fun fill(vararg items: Item) {
-        (0..contents.size).forEach { slot ->
+        (0..size.size).forEach { slot ->
             contents[slot] = items.random()
         }
     }
