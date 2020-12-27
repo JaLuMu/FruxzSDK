@@ -45,6 +45,12 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
         this.size = size
     }
 
+    /**
+     * Generates an [InventoryUI] using the required parameters.
+     * @param label defiens the display name of the inventory
+     * @param size defines the size of the inventory
+     * @param contents defines the contents of the inventory
+     */
     constructor(label: String = "container", size: InventorySize = InventorySize.SMALL, vararg contents: Pair<Int, Item> = emptyArray()) {
         this.contents = hashMapOf(*contents)
         this.label = label
@@ -52,11 +58,9 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
     }
 
     constructor(map: Map<String, Any>) {
-
         this.label = "${map["label"]}"
         this.size = InventorySize.valueOf("${map["size"]}")
         this.contents = HashMap(map["content"] as Map<Int, Item>)
-
     }
 
     /**
@@ -226,46 +230,83 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
      */
     fun place(slot: Int, bundle: ItemBundle, bundleSlot: Int) = place(slot = slot, item = bundle.items[bundleSlot])
 
+    /**
+     * Places items into the inventory
+     */
     fun place(rangeSlots: IntRange, item: Item) = rangeSlots.forEach {
         place(it, item)
     }
 
+    /**
+     * Places items into the inventory
+     */
     fun place(rangeSlots: IntRange, material: Material) = rangeSlots.forEach {
         place(it, material)
     }
 
+    /**
+     * Places items into the inventory
+     */
     fun place(rangeSlots: IntRange, bundle: ItemBundle, bundleSlot: Int) = rangeSlots.forEach {
         place(it, bundle, bundleSlot)
     }
 
+    /**
+     * Places items into the inventory
+     */
     fun place(arraySlots: Array<Int>, item: Item) = arraySlots.forEach {
         place(it, item)
     }
 
+    /**
+     * Places items into the inventory
+     */
     fun place(arraySlots: Array<Int>, material: Material) = arraySlots.forEach {
         place(it, material)
     }
 
+    /**
+     * Places items into the inventory
+     */
     fun place(arraySlots: Array<Int>, bundle: ItemBundle, bundleSlot: Int) = arraySlots.forEach {
         place(it, bundle, bundleSlot)
     }
 
+    /**
+     * Places items into the inventory
+     */
     fun place(listSlots: List<Int>, item: Item) = listSlots.forEach {
         place(it, item)
     }
 
+    /**
+     * Places items into the inventory
+     */
     fun place(listSlots: List<Int>, material: Material) = listSlots.forEach {
         place(it, material)
     }
 
+    /**
+     * Places items into the inventory
+     */
     fun place(listSlots: List<Int>, bundle: ItemBundle, bundleSlot: Int) = listSlots.forEach {
         place(it, bundle, bundleSlot)
     }
 
+    /**
+     * Places items into the inventory
+     */
     fun place(map: Map<Int, Item>) = map.forEach { (key, value) ->
         place(key, value)
     }
 
+    /**
+     * This function puts the items of [contents] into the
+     * contents of the current [InventoryUI]. Replacing the
+     * current items with the new items, but keeps the
+     * other items, which are saved in the local contents
+     * @param contents the new items with their slots
+     */
     fun placeover(contents: Map<Int, Item>) {
 
         for ((key, value) in contents) {
@@ -274,9 +315,23 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
 
     }
 
+    /**
+     * This function puts the items of [contents] into the
+     * contents of the current [InventoryUI]. Replacing the
+     * current items with the new items, but keeps the
+     * other items, which are saved in the local contents
+     * @param inventoryUI the UI containing the new items with their slots
+     */
     fun placeover(inventoryUI: InventoryUI) = placeover(inventoryUI.contents)
 
-    fun placeover(vararg content: Pair<Int, Item>) = placeover(mapOf(*content))
+    /**
+     * This function puts the items of [contents] into the
+     * contents of the current [InventoryUI]. Replacing the
+     * current items with the new items, but keeps the
+     * other items, which are saved in the local contents
+     * @param items the new items with their slots
+     */
+    fun placeover(vararg items: Pair<Int, Item>) = placeover(mapOf(*items))
 
     override fun serialize() = mapOf(
         "label" to label,
