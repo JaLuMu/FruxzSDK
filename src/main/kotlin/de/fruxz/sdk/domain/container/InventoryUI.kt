@@ -22,6 +22,12 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
         this.size = size
     }
 
+    constructor(label: String = "container", size: InventorySize = InventorySize.SMALL, vararg contents: Pair<Int, Item> = emptyArray()) {
+        this.contents = hashMapOf(*contents)
+        this.label = label
+        this.size = size
+    }
+
     constructor(map: Map<String, Any>) {
 
         this.label = "${map["label"]}"
@@ -141,6 +147,18 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
     fun place(slot: Int, material: Material) = place(slot = slot, item = Item(material))
 
     fun place(slot: Int, bundle: ItemBundle, bundleSlot: Int) = place(slot = slot, item = bundle.items[bundleSlot])
+
+    fun placeover(contents: Map<Int, Item>) {
+
+        for ((key, value) in contents) {
+            this.contents[key] = value
+        }
+
+    }
+
+    fun placeover(inventoryUI: InventoryUI) = placeover(inventoryUI.contents)
+
+    fun placeover(vararg content: Pair<Int, Item>) = placeover(mapOf(*content))
 
     override fun serialize() = mapOf(
         "label" to label,
