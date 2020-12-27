@@ -1,6 +1,7 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.4.21'
     id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 group = 'de.fruxz.sdk'
@@ -55,4 +56,8 @@ compileKotlin {
 
 compileTestKotlin {
     kotlinOptions.jvmTarget = '1.8'
+}
+
+shadowJar {
+    configurations = [project.configurations.compile]
 }
