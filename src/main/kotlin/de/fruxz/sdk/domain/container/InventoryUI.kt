@@ -64,7 +64,7 @@ class InventoryUI : ConfigurationSerializable, UserInterface, Cloneable {
 
                 val clone = value.clone()
 
-                 clone.material = withThat
+                clone.material = withThat
 
                 out[key] = value
 
