@@ -19,7 +19,7 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 
     compileOnly 'com.destroystokyo.paper:paper-api:1.16.4-R0.1-SNAPSHOT'
-    compile "org.jetbrains.kotlin:kotlin-stdlib:1.4.21"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:1.4.21-2"
 
 }
 
