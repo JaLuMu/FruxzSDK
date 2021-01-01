@@ -9,14 +9,14 @@ class ItemLore : ConfigurationSerializable {
 
     constructor()
 
-    constructor(start: String) {
-        content.add(start)
+    constructor(contentString: String) {
+        content.add(contentString)
     }
 
-    constructor(content: Collection<String?>?) {
+    constructor(contentCollection: Collection<String?>?) {
 
-        if (!content.isNullOrEmpty()) {
-            content
+        if (!contentCollection.isNullOrEmpty()) {
+            contentCollection
                 .filterNotNull()
                 .forEach {
 
@@ -28,11 +28,9 @@ class ItemLore : ConfigurationSerializable {
 
     }
 
-    constructor(content: Array<String?>?) {
-
-        if (!content.isNullOrEmpty()) {
-            content
-                .filterNotNull()
+    constructor(vararg contentStrings: String) {
+        if (!contentStrings.isNullOrEmpty()) {
+            contentStrings
                 .forEach {
 
                     this.content.add(it)
@@ -40,7 +38,6 @@ class ItemLore : ConfigurationSerializable {
                 }
 
         }
-
     }
 
     constructor(map: Map<String, Any>) {

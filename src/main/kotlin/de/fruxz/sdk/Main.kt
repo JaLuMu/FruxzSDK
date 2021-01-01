@@ -3,6 +3,10 @@ package de.fruxz.sdk
 import de.fruxz.sdk.domain.FlexibleLocationBundle
 import de.fruxz.sdk.domain.PluginDesign
 import de.fruxz.sdk.domain.container.*
+import de.fruxz.sdk.domain.sound.SoundBuilder
+import de.fruxz.sdk.domain.sound.SoundData
+import de.fruxz.sdk.domain.sound.SoundMelody
+import de.fruxz.sdk.domain.timer.TimerProviderService
 import de.fruxz.sdk.handler.WeatherHandler
 import de.fruxz.sdk.kernel.FruxzPlugin
 
@@ -28,6 +32,9 @@ class Main : FruxzPlugin() {
         registerSerializable(PluginDesign::class)
         registerSerializable(ItemBundle::class)
         registerSerializable(FlexibleLocationBundle::class)
+        registerSerializable(SoundData::class)
+        registerSerializable(SoundMelody::class)
+
 
     }
 
@@ -35,6 +42,8 @@ class Main : FruxzPlugin() {
         instance = this
 
         addHandler(WeatherHandler())
+
+        bootService(TimerProviderService())
 
     }
 

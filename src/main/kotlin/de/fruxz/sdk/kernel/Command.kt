@@ -149,25 +149,31 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
     }
 
     fun buildTabCompleter(): TabCompleter {
-        return TabCompleter { sender, _, alias, args ->
-            val clientType = if (sender is Player) { CommandClientType.PLAYER } else CommandClientType.CONSOLE
-            val completion  = onTabComplete(clientType = clientType, sender = sender, command = this, label = alias, args = args)
-            val out = ArrayList<String>()
+        return TabCompleter { sender, bukkitCommand, alias, args ->
+            if ((bukkitCommand.permission != null && sender.hasPermission("" + bukkitCommand.permission)) || (requiredCommandPermission != null && sender.hasPermission(requiredCommandPermission!!.fullPermission))) {
+                val clientType = if (sender is Player) {
+                    CommandClientType.PLAYER
+                } else CommandClientType.CONSOLE
+                val completion =
+                    onTabComplete(clientType = clientType, sender = sender, command = this, label = alias, args = args)
+                val out = ArrayList<String>()
 
-            if (!completion.isNullOrEmpty()) {
+                if (!completion.isNullOrEmpty()) {
 
-                completion.forEach {
-                    if (it.startsWith(args.last(), true)) {
-                        out.add(it)
+                    completion.forEach {
+                        if (it.startsWith(args.last(), true)) {
+                            out.add(it)
+                        }
                     }
+
                 }
 
-            }
+                if (out.isNullOrEmpty())
+                    out.add(" ")
 
-            if (out.isNullOrEmpty())
-                out.add(" ")
-
-            return@TabCompleter out
+                return@TabCompleter out
+            } else
+                return@TabCompleter null
         }
     }
 
@@ -194,7 +200,7 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
 
     fun sendFailMessage(sender: CommandSender) {
         Transmission(plugin = plugin, message = plugin.pluginDesign.useErrorMessage
-            ?: "§c§lOOPS§c,an error has occurred! Please report this to a technical engineer, we are very sorry!").sendMessage(sender)
+            ?: "§c§lOOPS§c, an error has occurred! Please report this to a technical engineer, we are very sorry!").sendMessage(sender)
     }
 
     fun shootAnswer(target: CommandSender, stringAnswer: String, vararg replacors: Pair<String, String>) = Transmission(plugin, stringAnswer.let {
