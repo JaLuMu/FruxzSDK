@@ -44,10 +44,7 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
         plugin.callEvent(preCommandEvent)
 
         if (!preCommandEvent.isCancelled) {
-            if (commandPermissionLevel != CommandPermissionLevel.FRAMEWORK || (requiredCommandPermission != null && sender.hasPermission(
-                    "$requiredCommandPermission"
-                ))
-            ) {
+            if (commandPermissionLevel != CommandPermissionLevel.FRAMEWORK || requiredCommandPermission == null || sender.hasPermission("$requiredCommandPermission")) {
                 if (requiredClientType == CommandClientAccessType.BOTH || (sender is Player && requiredClientType == CommandClientAccessType.PLAYER) || (sender is ConsoleCommandSender && requiredClientType == CommandClientAccessType.CONSOLE)) {
 
                     val clientType = if (sender is Player) {
