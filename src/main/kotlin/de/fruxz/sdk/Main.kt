@@ -7,6 +7,8 @@ import de.fruxz.sdk.domain.sound.SoundBuilder
 import de.fruxz.sdk.domain.sound.SoundData
 import de.fruxz.sdk.domain.sound.SoundMelody
 import de.fruxz.sdk.domain.timer.TimerProviderService
+import de.fruxz.sdk.handler.CombatHandler
+import de.fruxz.sdk.handler.InteractHandler
 import de.fruxz.sdk.handler.WeatherHandler
 import de.fruxz.sdk.kernel.FruxzPlugin
 
@@ -42,6 +44,8 @@ class Main : FruxzPlugin() {
         instance = this
 
         addHandler(WeatherHandler())
+        addHandler(CombatHandler())
+        addHandler(InteractHandler())
 
         bootService(TimerProviderService())
 
