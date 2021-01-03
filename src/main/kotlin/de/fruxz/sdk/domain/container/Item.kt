@@ -1,15 +1,13 @@
 package de.fruxz.sdk.domain.container
 
 import com.destroystokyo.paper.MaterialTags
+import de.fruxz.sdk.Main
 import de.fruxz.sdk.domain.User
 import de.fruxz.sdk.domain.display.TransmissionContentObjectable
 import de.fruxz.sdk.util.ListUtils
 import net.md_5.bungee.api.chat.HoverEvent
 import net.md_5.bungee.api.chat.TextComponent
-import org.bukkit.Bukkit
-import org.bukkit.ChatColor
-import org.bukkit.Material
-import org.bukkit.OfflinePlayer
+import org.bukkit.*
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemFlag
@@ -17,8 +15,10 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.inventory.meta.SkullMeta
+import org.bukkit.persistence.PersistentDataType
 import org.jetbrains.annotations.NotNull
 import java.util.*
+import kotlin.collections.ArrayList
 
 class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable {
 
@@ -30,6 +30,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
     var modifications: ArrayList<EnchantmentData>
     val flags: ArrayList<ItemFlag>
     var skullOwner: UUID?
+    val uniqueIdentity: UUID
 
     constructor() {
         material = Material.AIR
@@ -40,6 +41,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         modifications = ArrayList()
         flags = ArrayList()
         skullOwner = null
+        uniqueIdentity = UUID.randomUUID()
     }
 
     constructor(material: Material) {
@@ -51,6 +53,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         modifications = ArrayList()
         flags = ArrayList()
         skullOwner = null
+        uniqueIdentity = UUID.randomUUID()
     }
 
     constructor(itemStack: ItemStack) {
@@ -65,9 +68,10 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
             (itemStack.itemMeta as SkullMeta).owningPlayer?.uniqueId
         } else
             null
+        uniqueIdentity = UUID.fromString(itemStack.itemMeta.persistentDataContainer.get(identityNamespaceKey, PersistentDataType.STRING) ?: UUID.randomUUID().toString())
     }
 
-    constructor(material: Material, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList(), flags: List<ItemFlag> = emptyList(), skullOwner: UUID? = null) {
+    constructor(material: Material, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList(), flags: List<ItemFlag> = emptyList(), skullOwner: UUID? = null, uniqueIdentity: UUID = UUID.randomUUID()) {
         this.material = material
         this.size = size
         this.label = label
@@ -76,6 +80,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         this.modifications = ArrayList(modifications)
         this.flags = ArrayList(flags)
         this.skullOwner = skullOwner
+        this.uniqueIdentity = uniqueIdentity
     }
 
     constructor(map: Map<String, Any>) {
@@ -87,7 +92,10 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         modifications = ArrayList(map["modifications"] as List<EnchantmentData>)
         flags = ListUtils().convert(map["flags"] as List<String>) { ItemFlag.valueOf(it) }
         skullOwner = UUID.fromString("" + map["skullOwner"])
+        uniqueIdentity = UUID.fromString("" + map["uniqueIdenity"])
     }
+
+    private val identityNamespaceKey = NamespacedKey(Main.instance, "itemIdentity")
 
     var activeLore: List<String>
         get() = lore.content
@@ -153,6 +161,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
 
     fun isSame(
         other: Item,
+        ignoreIdentity: Boolean = false,
         ignoreMaterial: Boolean = false,
         ignoreLabel: Boolean = false,
         ignoreSize: Boolean = false,
@@ -163,6 +172,12 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
 
     ): Boolean {
         var isOtherItem = false
+
+        if(!ignoreIdentity) {
+            if (this.uniqueIdentity != other.uniqueIdentity) {
+                isOtherItem = true
+            }
+        }
 
         if (!ignoreMaterial) {
             if (this.material != other.material) {
@@ -211,6 +226,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
 
     fun isOther(
         other: Item,
+        ignoreIdentity: Boolean = false,
         ignoreMaterial: Boolean = false,
         ignoreLabel: Boolean = false,
         ignoreSize: Boolean = false,
@@ -218,7 +234,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         ignoreLore: Boolean = false,
         ignoreModifications: Boolean = false,
         ignoreFlags: Boolean = false,
-    ) = !isSame(other, ignoreMaterial, ignoreLabel, ignoreSize, ignoreDamage, ignoreLore, ignoreModifications, ignoreFlags)
+    ) = !isSame(other, ignoreIdentity, ignoreMaterial, ignoreLabel, ignoreSize, ignoreDamage, ignoreLore, ignoreModifications, ignoreFlags)
 
     @NotNull
     fun buildDisplayObject(bracketsColor: ChatColor = ChatColor.GRAY, nameColor: ChatColor? = null): TextComponent {
@@ -256,12 +272,13 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         "modifications" to modifications,
         "flags" to ListUtils().convert(flags) { it.name },
         "skullOwner" to skullOwner.toString(),
+        "uniqueIdenity" to "$uniqueIdentity",
     )
 
     companion object {
 
-        fun create(material: Material = Material.AIR, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList(), flags: List<ItemFlag> = emptyList(), skullOwner: UUID? = null): Item {
-            return Item(material, label, size, damage, lore, modifications, flags)
+        fun create(material: Material = Material.AIR, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList(), flags: List<ItemFlag> = emptyList(), skullOwner: UUID? = null, uniqueIdentity: UUID): Item {
+            return Item(material, label, size, damage, lore, modifications, flags, uniqueIdentity)
         }
 
         fun legacyEnchantmentsToData(legacy: Map<Enchantment, Int>): List<EnchantmentData> {
