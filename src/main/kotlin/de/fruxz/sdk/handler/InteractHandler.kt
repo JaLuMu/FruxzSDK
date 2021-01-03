@@ -11,7 +11,7 @@ class InteractHandler : Listener {
 
     @EventHandler
     fun onPlayerInteract(event: PlayerInteractEvent) {
-        
+
         if (event.hasItem()) {
             val fruxzEvent = PlayerInteractAtItemEvent(event.player, event.item!!, event.material)
 
