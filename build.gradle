@@ -1,6 +1,5 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.4.21'
-    id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
@@ -22,29 +21,6 @@ dependencies {
     compileOnly 'com.destroystokyo.paper:paper-api:1.16.4-R0.1-SNAPSHOT'
     compile "org.jetbrains.kotlin:kotlin-stdlib:1.4.21-2"
 
-}
-
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/TheFruxz/FruxzSDK")
-            credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME") ?: System.getenv("GITHUB_USERNAME")
-                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN") ?: System.getenv("GITHUB_TOKEN")
-            }
-        }
-    }
-    publications {
-        gpr(MavenPublication) {
-
-            artifactId "fruxzsdk"
-
-            from(components.java)
-            artifacts { kotlinSourcesJar }
-
-        }
-    }
 }
 
 test {
