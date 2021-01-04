@@ -11,6 +11,7 @@ import de.fruxz.sdk.handler.CombatHandler
 import de.fruxz.sdk.handler.InteractHandler
 import de.fruxz.sdk.handler.WeatherHandler
 import de.fruxz.sdk.kernel.FruxzPlugin
+import org.bukkit.plugin.java.JavaPlugin
 
 /**
  * This class helps to build the framework-system on the minecraft-server
@@ -18,7 +19,7 @@ import de.fruxz.sdk.kernel.FruxzPlugin
 class Main : FruxzPlugin() {
 
     companion object {
-        lateinit var instance: Main
+        lateinit var instance: FruxzPlugin
     }
 
     override var pluginDesign = PluginDesign("§6FruxzSDK §8// ")
@@ -41,7 +42,15 @@ class Main : FruxzPlugin() {
     }
 
     override fun bootProcess() {
-        instance = this
+
+        compatibilityBoot(this)
+
+    }
+
+    override fun shutdownProcess() { }
+
+    fun compatibilityBoot(plugin: FruxzPlugin) {
+        instance = plugin
 
         addHandler(WeatherHandler())
         addHandler(CombatHandler())
@@ -49,8 +58,8 @@ class Main : FruxzPlugin() {
 
         bootService(TimerProviderService())
 
-    }
+        println("FruxzSDK is now running in compatibility-mode via ${plugin.pluginName}!")
 
-    override fun shutdownProcess() { }
+    }
 
 }
