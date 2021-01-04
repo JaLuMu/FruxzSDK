@@ -26,7 +26,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
     var size: Int
     var damage: Int
     var label: String
-    var lore: ItemLore
+    var lore: ArrayList<String>
     var modifications: ArrayList<EnchantmentData>
     val flags: ArrayList<ItemFlag>
     var skullOwner: UUID?
@@ -37,7 +37,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         label = ChatColor.WHITE.toString() + material.name
         size = 1
         damage = 0
-        lore = ItemLore()
+        lore = ArrayList()
         modifications = ArrayList()
         flags = ArrayList()
         skullOwner = null
@@ -49,7 +49,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         label = ChatColor.WHITE.toString() + material.name
         size = 1
         damage = 0
-        lore = ItemLore()
+        lore = ArrayList()
         modifications = ArrayList()
         flags = ArrayList()
         skullOwner = null
@@ -61,7 +61,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         material = itemStack.type
         size = itemStack.amount
         damage = if (itemStack.itemMeta is Damageable) { (itemStack.itemMeta as Damageable).damage } else 0
-        lore = ItemLore(itemStack.lore)
+        lore = ArrayList(itemStack.lore?.toList() ?: emptyList())
         modifications = ArrayList(legacyEnchantmentsToData(itemStack.enchantments))
         flags = ArrayList(itemStack.itemFlags.toList())
         skullOwner = if (itemStack.type == Material.PLAYER_HEAD) {
@@ -71,7 +71,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         uniqueIdentity = UUID.fromString(itemStack.itemMeta.persistentDataContainer.get(identityNamespaceKey, PersistentDataType.STRING) ?: UUID.randomUUID().toString())
     }
 
-    constructor(material: Material, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList(), flags: List<ItemFlag> = emptyList(), skullOwner: UUID? = null, uniqueIdentity: UUID = UUID.randomUUID()) {
+    constructor(material: Material, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ArrayList<String> = ArrayList(), modifications: List<EnchantmentData> = emptyList(), flags: List<ItemFlag> = emptyList(), skullOwner: UUID? = null, uniqueIdentity: UUID = UUID.randomUUID()) {
         this.material = material
         this.size = size
         this.label = label
@@ -88,7 +88,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         label = "" + map["label"]
         size = (map["size"] as Number).toInt()
         damage = (map["damage"] as Number).toInt()
-        lore = map["lore"] as ItemLore
+        lore = ArrayList(ListUtils().convert((map["lore"] as Iterable<*>).toList()) { "$it" })
         modifications = ArrayList(map["modifications"] as List<EnchantmentData>)
         flags = ListUtils().convert(map["flags"] as List<String>) { ItemFlag.valueOf(it) }
         skullOwner = UUID.fromString("" + map["skullOwner"])
@@ -96,10 +96,6 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
     }
 
     private val identityNamespaceKey = NamespacedKey(Main.instance, "itemIdentity")
-
-    var activeLore: List<String>
-        get() = lore.content
-        set(value) { lore = ItemLore(value) }
 
     fun buildLegacy(forceEnchantments: Boolean = true, hideEnchantments: Boolean = false): ItemStack {
         val itemStack = ItemStack(material, size, damage.toShort())
@@ -130,7 +126,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         val itemMeta = Bukkit.getItemFactory().getItemMeta(material)
 
         itemMeta.setDisplayName(label)
-        itemMeta.lore = lore.content
+        itemMeta.lore = lore
 
         if (!flags.isNullOrEmpty())
             itemMeta.addItemFlags(*flags.toTypedArray())
@@ -204,7 +200,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
         }
 
         if (!ignoreLore) {
-            if (this.lore.content != other.lore.content) {
+            if (this.lore != other.lore) {
                 isOtherItem = true
             }
         }
@@ -277,7 +273,7 @@ class Item : Cloneable, ConfigurationSerializable, TransmissionContentObjectable
 
     companion object {
 
-        fun create(material: Material = Material.AIR, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ItemLore = ItemLore(), modifications: List<EnchantmentData> = emptyList(), flags: List<ItemFlag> = emptyList(), skullOwner: UUID? = null, uniqueIdentity: UUID): Item {
+        fun create(material: Material = Material.AIR, label: String = material.name, size: Int = 1, damage: Int = 0, lore: ArrayList<String> = ArrayList(), modifications: List<EnchantmentData> = emptyList(), flags: List<ItemFlag> = emptyList(), skullOwner: UUID? = null, uniqueIdentity: UUID): Item {
             return Item(material, label, size, damage, lore, modifications, flags, uniqueIdentity)
         }
 
