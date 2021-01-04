@@ -16,6 +16,7 @@ import java.util.*
 import java.util.logging.Level
 import kotlin.Exception
 import kotlin.NoSuchElementException
+import kotlin.collections.ArrayList
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -157,18 +158,28 @@ abstract class Command(val plugin: FruxzPlugin, val commandName: String) : Comma
 
                 if (!completion.isNullOrEmpty()) {
 
+                    val explicitEntrys = ArrayList<String>()
                     completion.forEach {
                         if (it.startsWith(args.last(), true)) {
-                            out.add(it)
+                            explicitEntrys.add(it)
                         }
                     }
+
+                    val inexplicitEntrys = ArrayList<String>()
+                    completion.forEach {
+                        if (it.contains(args.last(), true)) {
+                            inexplicitEntrys.add(it)
+                        }
+                    }
+
+                    out.addAll(explicitEntrys.sorted() + inexplicitEntrys.sorted())
 
                 }
 
                 if (out.isNullOrEmpty())
                     out.add(" ")
 
-                return@TabCompleter out
+                return@TabCompleter out.toSortedSet().toList()
             } else
                 return@TabCompleter null
         }
